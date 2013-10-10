@@ -13,16 +13,21 @@
         android:id="@+id/detail"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/detail"
         android:ems="10"
+        android:hint="@string/detail"
         android:inputType="textMultiLine" >
 
         <requestFocus />
     </EditText>
 
-    <Gallery
-        android:id="@+id/gallery"
+    <ImageButton
+        android:id="@+id/image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:background="@drawable/list_selector"
+        android:contentDescription="@string/hello_world"
+        android:focusable="false"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_launcher" />
 
 </LinearLayout>

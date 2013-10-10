@@ -34,7 +34,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 	private static final String TAG = "MainActivity";
 
-	private ArrayList<ArrayList<String>> mData = null;
+	private ArrayList<ArrayList<PersonalDailyInformation>> mData = null;
 	private PersonalDailyInformationAdapter mAdapter;
 	private ListView mDateStatusList;
 
@@ -50,6 +50,8 @@ public class MainActivity extends Activity {
 		mAdapter = new PersonalDailyInformationAdapter(this, mData);
 		mDateStatusList = (ListView) findViewById(R.id.list);
 		mDateStatusList.setAdapter(mAdapter);
+
+		setData();
 	}
 
 	@Override
@@ -73,37 +75,43 @@ public class MainActivity extends Activity {
 			break;
 		}
 
-	    return super.onOptionsItemSelected(item);
+		return super.onOptionsItemSelected(item);
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case R.id.action_add:
-			onActionAddResult();
-			break;
-		default:
-			break;
+		if (resultCode == Activity.RESULT_OK) {
+			switch (requestCode) {
+			case R.id.action_add:
+				onActionAddResult((PersonalDailyInformation) data
+						.getSerializableExtra(PersonalDailyInformationActivity.MESSAGE));
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
 	private void onActionAdd() {
-        Intent intent = new Intent(this, PersonalDailyInformationActivity.class);
-        startActivityForResult(intent, R.id.action_add);
+		Intent intent = new Intent(this, PersonalDailyInformationActivity.class);
+		startActivityForResult(intent, R.id.action_add);
 	}
 
-	private void onActionAddResult() {
-		
+	private void onActionAddResult(PersonalDailyInformation infor) {
+		mManager.addPersonalDailyInformation(infor);
+		mManager.save();
+
+		setData();
 	}
-	
+
 	private void onActionSettings() {
 	}
-	
+
 	private String getDay(int diff) {
 		Calendar calendar = new GregorianCalendar();
 		calendar.setTime(new Date());
 		calendar.add(Calendar.DATE, diff);
 		return getDay(calendar.getTime());
- 	}
+	}
 
 	private String getDay(Date date) {
 		SimpleDateFormat formatter = new SimpleDateFormat("MM-dd");
@@ -115,25 +123,36 @@ public class MainActivity extends Activity {
 		mManager.setPathname("/sdcard/0.json");
 		mManager.load();
 
-		mData = new ArrayList<ArrayList<String>>();
+		mData = new ArrayList<ArrayList<PersonalDailyInformation>>();
+	}
 
+	public void setData() {
+		mData.clear();
+
+		Date lastDate = null;
 		PersonalDailyInformation infor;
 		while (null != (infor = mManager.getPersonalDailyInformation())) {
-			ArrayList<String> oneDateStatus = new ArrayList<String>();
+			ArrayList<PersonalDailyInformation> oneDateStatus;
+			if (lastDate != null && infor.isSameDay(lastDate)) {
+				oneDateStatus = mData.get(mData.size() - 1);
+			} else {
+				oneDateStatus = new ArrayList<PersonalDailyInformation>();
+				mData.add(oneDateStatus);
+			}
 
-			oneDateStatus.add(getDay(infor.whichDay));
-			oneDateStatus.add("" + infor.level);
-
-			mData.add(oneDateStatus);
+			oneDateStatus.add(infor);
+			lastDate = infor.whichDay;
 		}
+
+		mAdapter.notifyDataSetChanged();
 	}
 
 	public class PersonalDailyInformationAdapter extends BaseAdapter {
 		private Context mContext;
-		private ArrayList<ArrayList<String>> mData = null;
+		private ArrayList<ArrayList<PersonalDailyInformation>> mData = null;
 
 		public PersonalDailyInformationAdapter(Context context,
-				ArrayList<ArrayList<String>> data) {
+				ArrayList<ArrayList<PersonalDailyInformation>> data) {
 			mContext = context;
 			mData = data;
 		}
@@ -160,70 +179,73 @@ public class MainActivity extends Activity {
 				return null;
 			}
 
-			DateStatusViewGroup myClass = null;
-			// Log.i(TAG, "NO." + position + ": " + view + ", " + myClass);
-			if (view == null /* || the number changed */) {
+			DateStatusViewGroup viewGroup = null;
+			int num = mData.get(position).size();
+
+			if (view != null) {
+				viewGroup = (DateStatusViewGroup) view.getTag();
+				if (viewGroup.mStatusViewGroupList.size() != num + 1) {
+					// The number is changed.
+					viewGroup = null;
+				}
+			}
+
+			if (viewGroup == null) {
 				LayoutInflater factory = LayoutInflater.from(mContext);
 				view = factory.inflate(R.layout.listitem_date_status, null);
 
-				myClass = new DateStatusViewGroup();
+				viewGroup = new DateStatusViewGroup();
 
-				myClass.mDate = (TextView) view.findViewById(R.id.date);
-				myClass.mStatusLayout = (LinearLayout) view
+				viewGroup.mDate = (TextView) view.findViewById(R.id.date);
+				viewGroup.mStatusLayout = (LinearLayout) view
 						.findViewById(R.id.layout);
 
-				int num = mData.get(position).size();
-				for (int i = 0; i < num; i++) {
+				for (int i = 0; i < num + 1; i++) {
 					OneStatusViewGroup object = new OneStatusViewGroup();
 					View viewOneStatus = factory.inflate(
-							R.layout.layout_one_status, myClass.mStatusLayout,
-							false);
+							R.layout.layout_one_status,
+							viewGroup.mStatusLayout, false);
 
 					object.mImage = (ImageButton) viewOneStatus
 							.findViewById(R.id.image);
 					object.mButton = (Button) viewOneStatus
 							.findViewById(R.id.button);
 
-					myClass.mStatusViewGroupList.add(object);
+					viewGroup.mStatusViewGroupList.add(object);
 
-					// Log.i(TAG, "" + i + ", " + viewOneStatus);
-					myClass.mStatusLayout.addView(viewOneStatus, i);
+					viewGroup.mStatusLayout.addView(viewOneStatus, i);
 				}
 
-				view.setTag(myClass);
-			} else {
-				myClass = (DateStatusViewGroup) view.getTag();
+				view.setTag(viewGroup);
 			}
 
-			// Log.i(TAG, "NO." + position + ": " + view + ", " + myClass);
-
-			showItemInfos(position, myClass);
+			showItemInfos(position, viewGroup);
 
 			return view;
 		}
 
 		private void showItemInfos(final int position,
-				DateStatusViewGroup myClass) {
-			if (myClass.mStatusViewGroupList.size() != mData.get(position)
-					.size()) {
-				return;
-			}
+				DateStatusViewGroup viewGroup) {
 
-			ArrayList<String> currentState = mData.get(position);
-			myClass.mDate.setText(currentState.get(0));
+			ArrayList<PersonalDailyInformation> currentState = mData
+					.get(position);
+
+			PersonalDailyInformation infor = currentState.get(0);
+
+			viewGroup.mDate.setText(getDay(infor.whichDay));
 
 			int num = mData.get(position).size();
-			Log.i(TAG,
-					"" + position + ", " + myClass.mStatusViewGroupList.size()
-							+ ", " + num);
-			for (int i = 1; i < num; i++) {
+			for (int i = 0; i < num; i++) {
 				final int offset = i;
 
-				OneStatusViewGroup object = myClass.mStatusViewGroupList
-						.get(i - 1);
-				object.mButton.setText(currentState.get(i));
-				object.mButton.setBackgroundResource(getBackgroundResource(
-						position, offset));
+				OneStatusViewGroup object = viewGroup.mStatusViewGroupList
+						.get(offset);
+
+				infor = currentState.get(offset);
+
+				object.mButton.setText(infor.name);
+				object.mButton
+						.setBackgroundResource(getBackgroundResource(infor.level));
 
 				object.mButton.setOnClickListener(new OnClickListener() {
 					@Override
@@ -233,8 +255,7 @@ public class MainActivity extends Activity {
 				});
 			}
 
-			OneStatusViewGroup object = myClass.mStatusViewGroupList
-					.get(num - 1);
+			OneStatusViewGroup object = viewGroup.mStatusViewGroupList.get(num);
 
 			object.mButton.setVisibility(View.GONE);
 
@@ -247,21 +268,20 @@ public class MainActivity extends Activity {
 			});
 		}
 
-		private int getBackgroundResource(final int position, final int offset) {
-			int color = Integer.parseInt(mData.get(position).get(offset)) % 5;
-			return mResIDGroupOfBackground[color];
+		private int getBackgroundResource(int level) {
+			return mResIDGroupOfBackground[level % 5];
 		}
 
 		private void onClickImageButton(final int position) {
-//			Toast.makeText(mContext, "Image " + position, Toast.LENGTH_SHORT)
-//					.show();
+			// Toast.makeText(mContext, "Image " + position, Toast.LENGTH_SHORT)
+			// .show();
 			mManager.addPersonalDailyInformation(PersonalDailyInformation
 					.createRandomPersonalDailyInformation());
 		}
 
 		private void onClickTextButton(final int position, final int offset) {
-//			Toast.makeText(mContext, "Text " + position + ", " + offset,
-//					Toast.LENGTH_SHORT).show();
+			// Toast.makeText(mContext, "Text " + position + ", " + offset,
+			// Toast.LENGTH_SHORT).show();
 		}
 
 		// ====================================================================

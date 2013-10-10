@@ -1,5 +1,6 @@
 package com.ankh.nurse;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,7 +16,7 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-public class PersonalDailyInformation {
+public class PersonalDailyInformation implements Serializable {
 
 	private static final String TAG = "PersonalDailyInformation";
 
@@ -25,6 +26,32 @@ public class PersonalDailyInformation {
 
 	public List<DetailInformation> detailList;
 
+	public PersonalDailyInformation() {
+		whichDay = new Date();
+		name = "";
+		level = 0;
+	}
+
+	public boolean isSameDay(Date whichDay) {
+		Calendar c1 = new GregorianCalendar();
+		Calendar c2 = new GregorianCalendar();
+
+		c1.setTime(this.whichDay);
+		c2.setTime(whichDay);
+
+		if (c1.get(Calendar.YEAR) != c2.get(Calendar.YEAR)) {
+			return false;
+		}
+		if (c1.get(Calendar.MONTH) != c2.get(Calendar.MONTH)) {
+			return false;
+		}
+		if (c1.get(Calendar.DAY_OF_MONTH) != c2.get(Calendar.DAY_OF_MONTH)) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public int compare(Date whichDay) {
 		return this.whichDay.compareTo(whichDay);
 	}
@@ -33,9 +60,56 @@ public class PersonalDailyInformation {
 		return compare(infor.whichDay);
 	}
 
-	public static class DetailInformation {
+	public void addDetail(DetailInformation detailInfor) {
+		if (detailList == null) {
+			detailList = new ArrayList<DetailInformation>();
+		}
+
+		detailList.add(detailInfor);
+	}
+
+	public void delDetail(int position) {
+	}
+
+	public boolean isDetailExist(int position) {
+		return detailList != null && position >= 0
+				&& position < detailList.size();
+	}
+
+	public DetailInformation getDetail(int position) {
+		if (!isDetailExist(position)) {
+			return null;
+		}
+
+		return detailList.get(position);
+	}
+
+	public DetailInformation setDetail(int position,
+			DetailInformation detailInfor) {
+		if (!isDetailExist(position)) {
+			return null;
+		}
+
+		return detailList.get(position).copy(detailInfor);
+	}
+
+	public PersonalDailyInformation copy(PersonalDailyInformation infor) {
+		whichDay = infor.whichDay;
+		name = infor.name;
+		level = infor.level;
+
+		detailList = infor.detailList;
+		return this;
+	}
+
+	public static class DetailInformation implements Serializable {
 		public String description;
 		public String attachmentPath;
+
+		public DetailInformation() {
+			description = "";
+			attachmentPath = "";
+		}
 
 		public static DetailInformation parseDetailInformation(JSONObject object) {
 			try {
@@ -49,6 +123,12 @@ public class PersonalDailyInformation {
 				e.printStackTrace();
 				return null;
 			}
+		}
+
+		public DetailInformation copy(DetailInformation infor) {
+			description = infor.description;
+			attachmentPath = infor.attachmentPath;
+			return this;
 		}
 
 		public JSONObject toJSONObject() {
@@ -82,7 +162,7 @@ public class PersonalDailyInformation {
 			JSONArray jsonArray = object.getJSONArray("detailList");
 			int num = jsonArray.length();
 			if (num > 0) {
-				info.detailList = new ArrayList<DetailInformation> ();
+				info.detailList = new ArrayList<DetailInformation>();
 
 				for (int i = 0; i < num; i++) {
 					JSONObject obj = jsonArray.getJSONObject(i);
@@ -181,7 +261,7 @@ public class PersonalDailyInformation {
 		int num = Math.abs(random.nextInt()) % 4;
 
 		if (num > 0) {
-			infor.detailList = new ArrayList<DetailInformation> ();
+			infor.detailList = new ArrayList<DetailInformation>();
 			for (int i = 0; i < num; i++) {
 				DetailInformation detailInfo = new DetailInformation();
 
@@ -191,7 +271,7 @@ public class PersonalDailyInformation {
 			}
 		}
 
-//		Log.i(TAG, infor.toString());
+		// Log.i(TAG, infor.toString());
 		return infor;
 	}
 }

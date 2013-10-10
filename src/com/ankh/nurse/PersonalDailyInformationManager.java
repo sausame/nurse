@@ -90,11 +90,11 @@ public class PersonalDailyInformationManager {
 		while (null != (infor = getPersonalDailyInformation())) {
 			int diff = infor.compare(newInfor);
 
-			if (diff < 0) {
+			if (diff > 0) {
 				continue;
 			}
 
-			if (diff > 0) {
+			if (diff < 0) {
 				// Append.
 				int i = mJsonArray.length() - 1;
 				try {

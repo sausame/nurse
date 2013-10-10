@@ -9,15 +9,25 @@ import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.TimePicker;
 import android.content.Intent;
 import android.view.Menu;
 
 public class PersonalDailyInformationActivity extends Activity {
+
+	private static final String TAG = "PDIActivity";
+	public static final String MESSAGE = TAG;
+
+	private PersonalDailyInformation mPersonalDailyInformation = null;
+
+	private EditText mNameEditText;
+	private RatingBar mLevelRatingBar;
 
 	private EditText showDate = null;
 	private Button pickDate = null;
@@ -52,6 +62,8 @@ public class PersonalDailyInformationActivity extends Activity {
 
 		setDateTime();
 		setTimeOfDay();
+
+		load();
 	}
 
 	@Override
@@ -61,10 +73,62 @@ public class PersonalDailyInformationActivity extends Activity {
 		return true;
 	}
 
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_BACK:
+			save();
+			break;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	private void setViews() {
+	}
+
+	private void load() {
+		mPersonalDailyInformation = (PersonalDailyInformation) getIntent()
+				.getSerializableExtra(MESSAGE);
+
+		if (mPersonalDailyInformation == null) {
+			mPersonalDailyInformation = new PersonalDailyInformation();
+		}
+	}
+
+	private void save() {
+		final Calendar c = Calendar.getInstance();
+		c.set(Calendar.YEAR, mYear);
+		c.set(Calendar.MONTH, mMonth);
+		c.set(Calendar.DAY_OF_MONTH, mDay);
+
+		c.set(Calendar.HOUR_OF_DAY, mHour);
+		c.set(Calendar.MINUTE, mMinute);
+
+		mPersonalDailyInformation.whichDay = c.getTime();
+		mPersonalDailyInformation.name = mNameEditText.getText().toString();
+		mPersonalDailyInformation.level = (int) mLevelRatingBar.getRating();
+
+		Bundle bundle = new Bundle();
+		bundle.putSerializable(MESSAGE, mPersonalDailyInformation);
+
+		Intent intent = new Intent();
+		intent.putExtras(bundle);
+
+		setResult(RESULT_OK, intent);
+	}
+
 	/**
 	 * 初始化控件和UI视图
 	 */
 	private void initializeViews() {
+
+		mNameEditText = (EditText) findViewById(R.id.name);
+		mLevelRatingBar = (RatingBar) findViewById(R.id.level);
+
+		pickDate = (Button) findViewById(R.id.pickdate);
+		showTime = (EditText) findViewById(R.id.showtime);
+		pickTime = (Button) findViewById(R.id.picktime);
+
 		showDate = (EditText) findViewById(R.id.showdate);
 		pickDate = (Button) findViewById(R.id.pickdate);
 		showTime = (EditText) findViewById(R.id.showtime);
@@ -101,14 +165,42 @@ public class PersonalDailyInformationActivity extends Activity {
 
 					@Override
 					public void onClick(View v) {
-						Intent intent = new Intent(
-								PersonalDailyInformationActivity.this,
-								PersonalDailyInformationDetailActivity.class);
-						PersonalDailyInformationActivity.this
-								.startActivity(intent);
+						onDetailClicked(0);
 					}
 				});
 
+	}
+
+	private void onDetailClicked(int position) {
+		Intent intent = new Intent(this,
+				PersonalDailyInformationDetailActivity.class);
+
+		if (mPersonalDailyInformation.isDetailExist(position)) {
+			Bundle bundle = new Bundle();
+			bundle.putSerializable(
+					PersonalDailyInformationDetailActivity.MESSAGE,
+					mPersonalDailyInformation.getDetail(position));
+
+			intent.putExtras(bundle);
+		}
+
+		startActivityForResult(intent, position);
+	}
+
+	private void onDetailChanged(int position,
+			PersonalDailyInformation.DetailInformation infor) {
+		if (mPersonalDailyInformation.isDetailExist(position)) {
+			mPersonalDailyInformation.setDetail(position, infor);
+		} else {
+			mPersonalDailyInformation.addDetail(infor);
+		}
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		onDetailChanged(
+				requestCode/* position */,
+				(PersonalDailyInformation.DetailInformation) data
+						.getSerializableExtra(PersonalDailyInformationDetailActivity.MESSAGE));
 	}
 
 	/**
