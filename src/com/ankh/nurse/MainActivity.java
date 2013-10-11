@@ -34,7 +34,11 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 	private static final String TAG = "MainActivity";
 
-	private ArrayList<ArrayList<PersonalDailyInformation>> mData = null;
+	private static final int ADD = 0;
+	private static final int MODIFY = 1;
+	private static final int DELETE = 2;
+
+	private ArrayList<ArrayList<StatusItem>> mData = null;
 	private PersonalDailyInformationAdapter mAdapter;
 	private ListView mDateStatusList;
 
@@ -81,9 +85,16 @@ public class MainActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 			switch (requestCode) {
-			case R.id.action_add:
+			case ADD:
 				onActionAddResult((PersonalDailyInformation) data
 						.getSerializableExtra(PersonalDailyInformationActivity.MESSAGE));
+				break;
+			case MODIFY:
+				onActionModifyResult(data.getIntExtra(PersonalDailyInformationActivity.ID, 0),
+							(PersonalDailyInformation) data.getSerializableExtra(
+								PersonalDailyInformationActivity.MESSAGE));
+				break;
+			case DELETE:
 				break;
 			default:
 				break;
@@ -93,11 +104,31 @@ public class MainActivity extends Activity {
 
 	private void onActionAdd() {
 		Intent intent = new Intent(this, PersonalDailyInformationActivity.class);
-		startActivityForResult(intent, R.id.action_add);
+		startActivityForResult(intent, ADD);
+	}
+
+	private void onActionModify(final int id, final int position, final int offset) {
+		PersonalDailyInformation infor = mData.get(position).get(offset).infor;
+
+		Intent intent = new Intent(this, PersonalDailyInformationActivity.class);
+
+		Bundle bundle = new Bundle();
+		bundle.putSerializable(PersonalDailyInformationActivity.MESSAGE, infor);
+		bundle.putSerializable(PersonalDailyInformationActivity.ID, id);
+		intent.putExtras(bundle);
+
+		startActivityForResult(intent, MODIFY);
 	}
 
 	private void onActionAddResult(PersonalDailyInformation infor) {
-		mManager.addPersonalDailyInformation(infor);
+		mManager.add(infor);
+		mManager.save();
+
+		setData();
+	}
+
+	private void onActionModifyResult(int id, PersonalDailyInformation infor) {
+		mManager.modify(id, infor);
 		mManager.save();
 
 		setData();
@@ -123,7 +154,7 @@ public class MainActivity extends Activity {
 		mManager.setPathname("/sdcard/0.json");
 		mManager.load();
 
-		mData = new ArrayList<ArrayList<PersonalDailyInformation>>();
+		mData = new ArrayList<ArrayList<StatusItem>>();
 	}
 
 	public void setData() {
@@ -131,16 +162,17 @@ public class MainActivity extends Activity {
 
 		Date lastDate = null;
 		PersonalDailyInformation infor;
-		while (null != (infor = mManager.getPersonalDailyInformation())) {
-			ArrayList<PersonalDailyInformation> oneDateStatus;
+
+		for (int id = 0; null != (infor = mManager.getPersonalDailyInformation()); id ++) {
+			ArrayList<StatusItem> oneDateStatus;
 			if (lastDate != null && infor.isSameDay(lastDate)) {
 				oneDateStatus = mData.get(mData.size() - 1);
 			} else {
-				oneDateStatus = new ArrayList<PersonalDailyInformation>();
+				oneDateStatus = new ArrayList<StatusItem>();
 				mData.add(oneDateStatus);
 			}
 
-			oneDateStatus.add(infor);
+			oneDateStatus.add(new StatusItem(id, infor));
 			lastDate = infor.whichDay;
 		}
 
@@ -149,10 +181,10 @@ public class MainActivity extends Activity {
 
 	public class PersonalDailyInformationAdapter extends BaseAdapter {
 		private Context mContext;
-		private ArrayList<ArrayList<PersonalDailyInformation>> mData = null;
+		private ArrayList<ArrayList<StatusItem>> mData = null;
 
 		public PersonalDailyInformationAdapter(Context context,
-				ArrayList<ArrayList<PersonalDailyInformation>> data) {
+				ArrayList<ArrayList<StatusItem>> data) {
 			mContext = context;
 			mData = data;
 		}
@@ -227,21 +259,22 @@ public class MainActivity extends Activity {
 		private void showItemInfos(final int position,
 				DateStatusViewGroup viewGroup) {
 
-			ArrayList<PersonalDailyInformation> currentState = mData
+			ArrayList<StatusItem> currentState = mData
 					.get(position);
 
-			PersonalDailyInformation infor = currentState.get(0);
+			PersonalDailyInformation infor = currentState.get(0).infor;
 
 			viewGroup.mDate.setText(getDay(infor.whichDay));
 
 			int num = mData.get(position).size();
 			for (int i = 0; i < num; i++) {
 				final int offset = i;
+				final int id = currentState.get(offset).id;
 
 				OneStatusViewGroup object = viewGroup.mStatusViewGroupList
 						.get(offset);
 
-				infor = currentState.get(offset);
+				infor = currentState.get(offset).infor;
 
 				object.mButton.setText(infor.name);
 				object.mButton
@@ -250,7 +283,7 @@ public class MainActivity extends Activity {
 				object.mButton.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickTextButton(position, offset);
+						onClickTextButton(id, position, offset);
 					}
 				});
 			}
@@ -273,15 +306,10 @@ public class MainActivity extends Activity {
 		}
 
 		private void onClickImageButton(final int position) {
-			// Toast.makeText(mContext, "Image " + position, Toast.LENGTH_SHORT)
-			// .show();
-			mManager.addPersonalDailyInformation(PersonalDailyInformation
-					.createRandomPersonalDailyInformation());
 		}
 
-		private void onClickTextButton(final int position, final int offset) {
-			// Toast.makeText(mContext, "Text " + position + ", " + offset,
-			// Toast.LENGTH_SHORT).show();
+		private void onClickTextButton(final int id, final int position, final int offset) {
+			onActionModify(id, position, offset);
 		}
 
 		// ====================================================================
@@ -302,5 +330,14 @@ public class MainActivity extends Activity {
 				R.drawable.list_selector_holo_yellow,
 				R.drawable.list_selector_holo_orange,
 				R.drawable.list_selector_holo_red };
+	}
+
+	private class StatusItem {
+		public StatusItem(int id, PersonalDailyInformation infor) {
+			this.id = id;
+			this.infor = infor;
+		}
+		int id;
+		PersonalDailyInformation infor;
 	}
 }

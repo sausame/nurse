@@ -26,6 +26,10 @@ public class PersonalDailyInformationManager {
 		mPathname = path;
 	}
 
+	public int getSize() {
+		return mJsonArray == null ? 0 : mJsonArray.length();
+	}
+
 	public void load() {
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -83,55 +87,80 @@ public class PersonalDailyInformationManager {
 		mCurrentIndex = 0;
 	}
 
-	public void addPersonalDailyInformation(PersonalDailyInformation newInfor) {
+	public boolean add(PersonalDailyInformation newInfor) {
 		reset();
 
 		PersonalDailyInformation infor = null;
-		while (null != (infor = getPersonalDailyInformation())) {
-			int diff = infor.compare(newInfor);
-
-			if (diff > 0) {
-				continue;
-			}
-
-			if (diff < 0) {
-				// Append.
-				int i = mJsonArray.length() - 1;
-				try {
-					mJsonArray.put(mJsonArray.getJSONObject(i));
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-
-				// Move
-				for (; i >= mCurrentIndex - 1; i--) {
-					try {
-						mJsonArray.put(i + 1, mJsonArray.getJSONObject(i));
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				}
-
-				// Insert before.
-			} else {
-				// Replace.
-			}
-
-			// Move the current.
-			mCurrentIndex--;
-			break;
-		}
 
 		try {
+			while (null != (infor = getPersonalDailyInformation())) {
+				int diff = infor.compare(newInfor);
+
+				if (diff > 0) {
+					continue;
+				}
+
+				if (diff < 0) {
+					// Append.
+					int i = mJsonArray.length() - 1;
+					mJsonArray.put(mJsonArray.getJSONObject(i));
+
+					// Move
+					for (; i >= mCurrentIndex - 1; i--) {
+						mJsonArray.put(i + 1, mJsonArray.getJSONObject(i));
+					}
+
+					// Insert before.
+				} else {
+					// Replace.
+				}
+
+				// Move the current.
+				mCurrentIndex--;
+				break;
+			}
+
 			if (mJsonArray == null) {
 				mJsonArray = new JSONArray();
 			}
 
 			Log.v(TAG, "Add " + mCurrentIndex + ":" + newInfor.toJSONObject());
 			mJsonArray.put(mCurrentIndex, newInfor.toJSONObject());
+
+			return true;
+
 		} catch (JSONException e) {
 			e.printStackTrace();
+			return false;
 		}
+	}
+
+	public boolean del(int id) {
+		reset();
+
+		JSONArray array = new JSONArray();
+
+		PersonalDailyInformation infor = null;
+
+		for (; null != (infor = getPersonalDailyInformation()); id--) {
+			if (0 == id) {
+				continue;
+			}
+
+			array.put(infor);
+		}
+
+		mJsonArray = array;
+		return true;
+
+	}
+
+	public boolean modify(int id, PersonalDailyInformation newInfor) {
+		if (!del(id)) {
+			return false;
+		}
+
+		return add(newInfor);
 	}
 
 	public PersonalDailyInformation getPersonalDailyInformation() {
@@ -192,7 +221,7 @@ public class PersonalDailyInformationManager {
 		manager.load();
 		Log.i(TAG, manager.toString());
 
-		manager.addPersonalDailyInformation(PersonalDailyInformation
+		manager.add(PersonalDailyInformation
 				.createRandomPersonalDailyInformation());
 
 		manager.save();
