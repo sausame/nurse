@@ -12,7 +12,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -90,9 +89,10 @@ public class MainActivity extends Activity {
 						.getSerializableExtra(PersonalDailyInformationActivity.MESSAGE));
 				break;
 			case MODIFY:
-				onActionModifyResult(data.getIntExtra(PersonalDailyInformationActivity.ID, 0),
-							(PersonalDailyInformation) data.getSerializableExtra(
-								PersonalDailyInformationActivity.MESSAGE));
+				onActionModifyResult(
+						data.getIntExtra(PersonalDailyInformationActivity.ID, 0),
+						(PersonalDailyInformation) data
+								.getSerializableExtra(PersonalDailyInformationActivity.MESSAGE));
 				break;
 			case DELETE:
 				break;
@@ -107,7 +107,8 @@ public class MainActivity extends Activity {
 		startActivityForResult(intent, ADD);
 	}
 
-	private void onActionModify(final int id, final int position, final int offset) {
+	private void onActionModify(final int id, final int position,
+			final int offset) {
 		PersonalDailyInformation infor = mData.get(position).get(offset).infor;
 
 		Intent intent = new Intent(this, PersonalDailyInformationActivity.class);
@@ -158,12 +159,16 @@ public class MainActivity extends Activity {
 	}
 
 	public void setData() {
+		Log.i(TAG, mManager.toString());
+
 		mData.clear();
 
+		// XXX Number is wrong.
 		Date lastDate = null;
 		PersonalDailyInformation infor;
 
-		for (int id = 0; null != (infor = mManager.getPersonalDailyInformation()); id ++) {
+		for (int id = 0; null != (infor = mManager
+				.getPersonalDailyInformation()); id++) {
 			ArrayList<StatusItem> oneDateStatus;
 			if (lastDate != null && infor.isSameDay(lastDate)) {
 				oneDateStatus = mData.get(mData.size() - 1);
@@ -207,6 +212,7 @@ public class MainActivity extends Activity {
 
 		@Override
 		public View getView(int position, View view, ViewGroup arg2) {
+			Log.i(TAG, "" + position);
 			if (position < 0 || position >= getCount()) {
 				return null;
 			}
@@ -214,8 +220,10 @@ public class MainActivity extends Activity {
 			DateStatusViewGroup viewGroup = null;
 			int num = mData.get(position).size();
 
+			// XXX Every time it will be created. Wrong !!!
 			if (view != null) {
 				viewGroup = (DateStatusViewGroup) view.getTag();
+				Log.i(TAG, "" + viewGroup.mStatusViewGroupList.size() + " ? " + num);
 				if (viewGroup.mStatusViewGroupList.size() != num + 1) {
 					// The number is changed.
 					viewGroup = null;
@@ -251,6 +259,7 @@ public class MainActivity extends Activity {
 				view.setTag(viewGroup);
 			}
 
+			Log.i(TAG, "ooo " + viewGroup.mStatusViewGroupList.size() + " ? " + num);
 			showItemInfos(position, viewGroup);
 
 			return view;
@@ -259,8 +268,7 @@ public class MainActivity extends Activity {
 		private void showItemInfos(final int position,
 				DateStatusViewGroup viewGroup) {
 
-			ArrayList<StatusItem> currentState = mData
-					.get(position);
+			ArrayList<StatusItem> currentState = mData.get(position);
 
 			PersonalDailyInformation infor = currentState.get(0).infor;
 
@@ -308,7 +316,8 @@ public class MainActivity extends Activity {
 		private void onClickImageButton(final int position) {
 		}
 
-		private void onClickTextButton(final int id, final int position, final int offset) {
+		private void onClickTextButton(final int id, final int position,
+				final int offset) {
 			onActionModify(id, position, offset);
 		}
 
@@ -337,6 +346,7 @@ public class MainActivity extends Activity {
 			this.id = id;
 			this.infor = infor;
 		}
+
 		int id;
 		PersonalDailyInformation infor;
 	}

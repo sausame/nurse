@@ -12,8 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 public class PersonalDailyInformationManager {
 
 	private static final String TAG = "PersonalDailyInformationManager";
@@ -147,7 +145,7 @@ public class PersonalDailyInformationManager {
 				continue;
 			}
 
-			array.put(infor);
+			array.put(infor.toJSONObject());
 		}
 
 		mJsonArray = array;
@@ -202,14 +200,17 @@ public class PersonalDailyInformationManager {
 	}
 
 	public String toString() {
-		reset();
-		String str = "Pathname: " + mPathname;
 
-		PersonalDailyInformation infor;
-		while (null != (infor = getPersonalDailyInformation())) {
-			str += "-------------------------------\n";
-			str += infor.toString();
+		String str = "\n-------------------------------------------------------------------------------\n";
+		str += "Pathname: " + mPathname + "\n";
+
+		try {
+			str += mJsonArray.toString(2);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
+
+		str += "\n-------------------------------------------------------------------------------\n";
 
 		return str;
 	}

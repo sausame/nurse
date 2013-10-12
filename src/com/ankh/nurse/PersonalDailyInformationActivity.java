@@ -104,7 +104,8 @@ public class PersonalDailyInformationActivity extends Activity {
 	}
 
 	private void save() {
-		final Calendar c = Calendar.getInstance();
+		Calendar c = new GregorianCalendar();
+		c.setTime(mPersonalDailyInformation.whichDay);
 		c.set(Calendar.YEAR, mYear);
 		c.set(Calendar.MONTH, mMonth);
 		c.set(Calendar.DAY_OF_MONTH, mDay);

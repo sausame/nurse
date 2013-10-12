@@ -14,8 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 public class PersonalDailyInformation implements Serializable {
 
 	private static final String TAG = "PersonalDailyInformation";
@@ -31,6 +29,12 @@ public class PersonalDailyInformation implements Serializable {
 		name = "";
 		level = 0;
 	}
+
+/*
+	public PersonalDailyInformation(PersonalDailyInformation infor) {
+		this.copy(infor);
+	}
+*/
 
 	public boolean isSameDay(Date whichDay) {
 		Calendar c1 = new GregorianCalendar();
@@ -69,6 +73,11 @@ public class PersonalDailyInformation implements Serializable {
 	}
 
 	public void delDetail(int position) {
+		if (detailList == null || position >= detailList.size()) {
+			return;
+		}
+
+		detailList.remove(position);
 	}
 
 	public boolean isDetailExist(int position) {
@@ -110,6 +119,12 @@ public class PersonalDailyInformation implements Serializable {
 			description = "";
 			attachmentPath = "";
 		}
+
+		/*
+		public DetailInformation(DetailInformation infor) {
+			this.copy(infor);
+		}
+		*/
 
 		public static DetailInformation parseDetailInformation(JSONObject object) {
 			try {
@@ -174,7 +189,7 @@ public class PersonalDailyInformation implements Serializable {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 
 		return info;

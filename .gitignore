@@ -23,7 +23,12 @@ local.properties
 proguard/
 
 # Intellij project files
+*.swp
 *.iml
 *.ipr
 *.iws
 .idea/
+
+#
+.gitignore
+
