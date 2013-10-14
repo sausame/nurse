@@ -3,6 +3,8 @@
 
     <string name="app_name">nurse</string>
     <string name="action_add">Add</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_cancel">Cancel</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello World</string>
     <string name="title_activity_personal_daily_information">Daily Information</string>

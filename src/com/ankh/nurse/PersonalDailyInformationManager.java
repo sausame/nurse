@@ -81,7 +81,7 @@ public class PersonalDailyInformationManager {
 		}
 	}
 
-	private void reset() {
+	public void reset() {
 		mCurrentIndex = 0;
 	}
 
@@ -125,8 +125,6 @@ public class PersonalDailyInformationManager {
 			Log.v(TAG, "Add " + mCurrentIndex + ":" + newInfor.toJSONObject());
 			mJsonArray.put(mCurrentIndex, newInfor.toJSONObject());
 
-			reset(); // Reset is needed.
-
 			return true;
 
 		} catch (JSONException e) {
@@ -152,7 +150,6 @@ public class PersonalDailyInformationManager {
 
 		mJsonArray = array;
 		return true;
-
 	}
 
 	public boolean modify(int id, PersonalDailyInformation newInfor) {
@@ -165,15 +162,15 @@ public class PersonalDailyInformationManager {
 
 	public PersonalDailyInformation getPersonalDailyInformation() {
 		if (null == mJsonArray || mCurrentIndex >= mJsonArray.length()) {
-			Log.e(TAG, (mJsonArray == null) ? "NO array" : "" + mCurrentIndex
+			Log.d(TAG, (mJsonArray == null) ? "NO array" : "" + mCurrentIndex
 					+ " >= " + mJsonArray.length());
 			return null;
 		}
 
 		try {
-			Log.v(TAG,
-					"Try to get " + mCurrentIndex + " in "
-							+ mJsonArray.length());
+//			Log.v(TAG,
+//					"Try to get " + mCurrentIndex + " in "
+//							+ mJsonArray.length());
 			JSONObject obj = mJsonArray.getJSONObject(mCurrentIndex++);
 			return PersonalDailyInformation.parsePersonalDailyInformation(obj);
 		} catch (JSONException e) {

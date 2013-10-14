@@ -30,12 +30,6 @@ public class PersonalDailyInformation implements Serializable {
 		level = 0;
 	}
 
-/*
-	public PersonalDailyInformation(PersonalDailyInformation infor) {
-		this.copy(infor);
-	}
-*/
-
 	public boolean isSameDay(Date whichDay) {
 		Calendar c1 = new GregorianCalendar();
 		Calendar c2 = new GregorianCalendar();

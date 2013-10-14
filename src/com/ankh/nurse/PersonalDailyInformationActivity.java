@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -59,6 +60,40 @@ public class PersonalDailyInformationActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.personal_daily_information, menu);
 		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_cancel:
+			onActionCancel();
+			return true;
+		case R.id.action_delete:
+			onActionDelete();
+			return true;
+
+		default:
+			break;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void onActionCancel() {
+		finish();
+	}
+
+	private void onActionDelete() {
+		Bundle bundle = new Bundle();
+		bundle.putSerializable(MESSAGE, null);
+		bundle.putInt(ID, mID);
+
+		Intent intent = new Intent();
+		intent.putExtras(bundle);
+
+		setResult(RESULT_OK, intent);
+
+		finish();
 	}
 
 	@Override

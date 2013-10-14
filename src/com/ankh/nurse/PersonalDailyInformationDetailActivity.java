@@ -16,6 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -55,6 +56,30 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 				menu);
 		return true;
 	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_cancel:
+			onActionCancel();
+			return true;
+		case R.id.action_delete:
+			onActionDelete();
+			return true;
+
+		default:
+			break;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void onActionCancel() {
+	}
+
+	private void onActionDelete() {
+	}
+
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {

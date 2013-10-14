@@ -81,7 +81,9 @@ public class MainActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.i(TAG, "" + requestCode + ", " + resultCode + ", " + data);
 		if (resultCode == Activity.RESULT_OK) {
 			switch (requestCode) {
 			case ADD:
@@ -103,7 +105,30 @@ public class MainActivity extends Activity {
 	}
 
 	private void onActionAdd() {
+		onActionAdd(-1);
+	}
+
+	private void onActionAdd(final int position) {
 		Intent intent = new Intent(this, PersonalDailyInformationActivity.class);
+
+		if (position >= 0) {
+			Calendar c1 = new GregorianCalendar();
+			Calendar c2 = new GregorianCalendar();
+
+			c1.setTime(mData.get(position).get(0).infor.whichDay);
+
+			c2.set(Calendar.YEAR, c1.get(Calendar.YEAR));
+			c2.set(Calendar.MONTH, c1.get(Calendar.MONTH));
+			c2.set(Calendar.DAY_OF_MONTH, c1.get(Calendar.DAY_OF_MONTH));
+
+			PersonalDailyInformation infor = new PersonalDailyInformation();
+			infor.whichDay = c2.getTime();
+
+			Bundle bundle = new Bundle();
+			bundle.putSerializable(PersonalDailyInformationActivity.MESSAGE, infor);
+			intent.putExtras(bundle);
+		}
+
 		startActivityForResult(intent, ADD);
 	}
 
@@ -129,7 +154,12 @@ public class MainActivity extends Activity {
 	}
 
 	private void onActionModifyResult(int id, PersonalDailyInformation infor) {
-		mManager.modify(id, infor);
+		if (infor != null) {
+			mManager.modify(id, infor);
+		} else {
+			mManager.del(id);
+		}
+
 		mManager.save();
 
 		setData();
@@ -162,6 +192,7 @@ public class MainActivity extends Activity {
 		Log.i(TAG, mManager.toString());
 
 		mData.clear();
+		mManager.reset();
 
 		Date lastDate = null;
 		PersonalDailyInformation infor;
@@ -275,8 +306,7 @@ public class MainActivity extends Activity {
 				final int offset = i;
 				final int id = currentState.get(offset).id;
 
-				object = viewGroup.mStatusViewGroupList
-						.get(offset);
+				object = viewGroup.mStatusViewGroupList.get(offset);
 
 				infor = currentState.get(offset).infor;
 
@@ -295,7 +325,7 @@ public class MainActivity extends Activity {
 				object.mImage.setVisibility(View.GONE);
 			}
 
-			object = viewGroup.mStatusViewGroupList.get(i ++);
+			object = viewGroup.mStatusViewGroupList.get(i++);
 			object.mButton.setVisibility(View.GONE);
 			object.mImage.setVisibility(View.VISIBLE);
 			object.mImage.setOnClickListener(new OnClickListener() {
@@ -305,7 +335,7 @@ public class MainActivity extends Activity {
 				}
 			});
 
-			for (; i < MAX_IN_AN_ITEM; i ++) {
+			for (; i < MAX_IN_AN_ITEM; i++) {
 				object = viewGroup.mStatusViewGroupList.get(i);
 				object.mButton.setVisibility(View.GONE);
 				object.mImage.setVisibility(View.GONE);
@@ -317,6 +347,7 @@ public class MainActivity extends Activity {
 		}
 
 		private void onClickImageButton(final int position) {
+			onActionAdd(position);
 		}
 
 		private void onClickTextButton(final int id, final int position,
