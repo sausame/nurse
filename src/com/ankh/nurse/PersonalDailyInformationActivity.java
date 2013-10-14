@@ -142,15 +142,6 @@ public class PersonalDailyInformationActivity extends Activity {
 			return;
 		}
 
-		Calendar c = new GregorianCalendar();
-		c.setTime(mPersonalDailyInformation.whichDay);
-		c.set(Calendar.YEAR, mYear);
-		c.set(Calendar.MONTH, mMonth);
-		c.set(Calendar.DAY_OF_MONTH, mDay);
-
-		mPersonalDailyInformation.whichDay = c.getTime();
-		mPersonalDailyInformation.level = mAdapter.getLevel();
-
 		Bundle bundle = new Bundle();
 		bundle.putSerializable(MESSAGE, mPersonalDailyInformation);
 		bundle.putInt(ID, mID);
@@ -197,6 +188,14 @@ public class PersonalDailyInformationActivity extends Activity {
 		mYear = year;
 		mMonth = monthOfYear;
 		mDay = dayOfMonth;
+
+		Calendar c = new GregorianCalendar();
+		c.setTime(mPersonalDailyInformation.whichDay);
+		c.set(Calendar.YEAR, year);
+		c.set(Calendar.MONTH, monthOfYear);
+		c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+		mPersonalDailyInformation.whichDay = c.getTime();
 
 		mAdapter.notifyDataSetChanged();
 	}
@@ -245,36 +244,26 @@ public class PersonalDailyInformationActivity extends Activity {
 
 	};
 
-/*
-	public void onItemSelected(AdapterView<?> listView, View view,
-			int position, long id) {
-		if (position == 1) {
-			// listView.setItemsCanFocus(true);
-
-			// Use afterDescendants, because I don't want the ListView to steal
-			// focus
-			listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-			mAdapter.requestFocus();
-			// myEditText.requestFocus();
-		} else {
-			if (!listView.isFocused()) {
-				// listView.setItemsCanFocus(false);
-
-				// Use beforeDescendants so that the EditText doesn't re-take
-				// focus
-				listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-				listView.requestFocus();
-			}
-		}
-	}
-
-	public void onNothingSelected(AdapterView<?> listView) {
-		// This happens when you start scrolling, so we need to prevent it from
-		// staying
-		// in the afterDescendants mode if the EditText was focused
-		listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-	}
-*/
+	/*
+	 * public void onItemSelected(AdapterView<?> listView, View view, int
+	 * position, long id) { if (position == 1) { //
+	 * listView.setItemsCanFocus(true);
+	 * 
+	 * // Use afterDescendants, because I don't want the ListView to steal //
+	 * focus
+	 * listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+	 * mAdapter.requestFocus(); // myEditText.requestFocus(); } else { if
+	 * (!listView.isFocused()) { // listView.setItemsCanFocus(false);
+	 * 
+	 * // Use beforeDescendants so that the EditText doesn't re-take // focus
+	 * listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+	 * listView.requestFocus(); } } }
+	 * 
+	 * public void onNothingSelected(AdapterView<?> listView) { // This happens
+	 * when you start scrolling, so we need to prevent it from // staying // in
+	 * the afterDescendants mode if the EditText was focused
+	 * listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS); }
+	 */
 	public class PersonalDailyDetailInformationAdapter extends BaseAdapter {
 		private Context mContext;
 		private PersonalDailyInformation mPersonalDailyInformation = null;
@@ -362,13 +351,11 @@ public class PersonalDailyInformationActivity extends Activity {
 				@Override
 				public void onTextChanged(CharSequence s, int start,
 						int before, int count) {
-
 				}
 
 				@Override
 				public void beforeTextChanged(CharSequence s, int start,
 						int count, int after) {
-
 				}
 
 				@Override
@@ -379,6 +366,14 @@ public class PersonalDailyInformationActivity extends Activity {
 
 			viewGroup.mLevelRatingBar
 					.setRating(mPersonalDailyInformation.level);
+			viewGroup.mLevelRatingBar
+					.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+						@Override
+						public void onRatingChanged(RatingBar ratingBar,
+								float rating, boolean fromUser) {
+							mPersonalDailyInformation.level = (int) rating;
+						}
+					});
 
 			viewGroup.mChooseDateButton
 					.setOnClickListener(new View.OnClickListener() {
@@ -393,14 +388,6 @@ public class PersonalDailyInformationActivity extends Activity {
 									.sendMessage(msg);
 						}
 					});
-		}
-
-		public String getName() {
-			return mPersonalDailyInformation.name;
-		}
-
-		public int getLevel() {
-			return (int) mItemHeaderViewGroup.mLevelRatingBar.getRating();
 		}
 
 		public void requestFocus() {
