@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants" >
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="@dimen/listbar_layout_1_item_width"
+        android:layout_height="@dimen/listbar_layout_height"
+        android:layout_alignParentLeft="true"
+        android:textColor="@color/list_main"
+        android:textSize="@dimen/list_main_textsize" />
+
+     <ImageButton
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/list_selector"
+        android:contentDescription="@string/hello_world"
+        android:focusable="false"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_launcher" />
+
+</RelativeLayout>

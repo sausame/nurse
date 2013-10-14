@@ -11,14 +11,24 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.content.Context;
 import android.content.Intent;
 import android.view.Menu;
 
@@ -31,11 +41,8 @@ public class PersonalDailyInformationActivity extends Activity {
 	private PersonalDailyInformation mPersonalDailyInformation = null;
 	private int mID = 0;
 
-	private EditText mNameEditText;
-	private RatingBar mLevelRatingBar;
-
-	private TextView mDateTextView = null;
-	private Button mChooseDateButton = null;
+	private PersonalDailyDetailInformationAdapter mAdapter;
+	private ListView mDetailList;
 
 	private static final int SHOW_CHOOSE_DATE_DIALOG = 0;
 	private static final int DATE_DIALOG_ID = 1;
@@ -51,8 +58,10 @@ public class PersonalDailyInformationActivity extends Activity {
 
 		load();
 
-		initViews();
-		setViews();
+		mAdapter = new PersonalDailyDetailInformationAdapter(this,
+				mPersonalDailyInformation);
+		mDetailList = (ListView) findViewById(R.id.list);
+		mDetailList.setAdapter(mAdapter);
 	}
 
 	@Override
@@ -106,18 +115,6 @@ public class PersonalDailyInformationActivity extends Activity {
 		return super.onKeyDown(keyCode, event);
 	}
 
-	private void setViews() {
-		mDateTextView.setText(getDay(mPersonalDailyInformation.whichDay));
-		mNameEditText.setText(mPersonalDailyInformation.name);
-		mLevelRatingBar.setRating(mPersonalDailyInformation.level);
-	}
-
-	private String getDay(Date date) {
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		String dateString = formatter.format(date);
-		return dateString;
-	}
-
 	private void load() {
 		mPersonalDailyInformation = (PersonalDailyInformation) getIntent()
 				.getSerializableExtra(MESSAGE);
@@ -139,6 +136,12 @@ public class PersonalDailyInformationActivity extends Activity {
 	}
 
 	private void save() {
+		if (0 == mPersonalDailyInformation.name.length()) {
+			Toast.makeText(this, R.string.no_name_message, Toast.LENGTH_LONG)
+					.show();
+			return;
+		}
+
 		Calendar c = new GregorianCalendar();
 		c.setTime(mPersonalDailyInformation.whichDay);
 		c.set(Calendar.YEAR, mYear);
@@ -146,8 +149,7 @@ public class PersonalDailyInformationActivity extends Activity {
 		c.set(Calendar.DAY_OF_MONTH, mDay);
 
 		mPersonalDailyInformation.whichDay = c.getTime();
-		mPersonalDailyInformation.name = mNameEditText.getText().toString();
-		mPersonalDailyInformation.level = (int) mLevelRatingBar.getRating();
+		mPersonalDailyInformation.level = mAdapter.getLevel();
 
 		Bundle bundle = new Bundle();
 		bundle.putSerializable(MESSAGE, mPersonalDailyInformation);
@@ -157,36 +159,6 @@ public class PersonalDailyInformationActivity extends Activity {
 		intent.putExtras(bundle);
 
 		setResult(RESULT_OK, intent);
-	}
-
-	private void initViews() {
-		mDateTextView = (TextView) findViewById(R.id.date_text);
-		mChooseDateButton = (Button) findViewById(R.id.choose_date);
-
-		mChooseDateButton.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Message msg = new Message();
-				if (mChooseDateButton.equals((Button) v)) {
-					msg.what = PersonalDailyInformationActivity.SHOW_CHOOSE_DATE_DIALOG;
-				}
-				PersonalDailyInformationActivity.this.dateandtimeHandler
-						.sendMessage(msg);
-			}
-		});
-
-		mNameEditText = (EditText) findViewById(R.id.name);
-		mLevelRatingBar = (RatingBar) findViewById(R.id.level);
-
-		((Button) findViewById(R.id.detail))
-				.setOnClickListener(new View.OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						onDetailClicked(0);
-					}
-				});
 	}
 
 	private void onDetailClicked(int position) {
@@ -221,40 +193,19 @@ public class PersonalDailyInformationActivity extends Activity {
 						.getSerializableExtra(PersonalDailyInformationDetailActivity.MESSAGE));
 	}
 
-	/**
-	 * 设置日期
-	 */
-	private void setDateTime() {
-		final Calendar c = Calendar.getInstance();
+	private void setDate(int year, int monthOfYear, int dayOfMonth) {
+		mYear = year;
+		mMonth = monthOfYear;
+		mDay = dayOfMonth;
 
-		mYear = c.get(Calendar.YEAR);
-		mMonth = c.get(Calendar.MONTH);
-		mDay = c.get(Calendar.DAY_OF_MONTH);
-
-		updateDateDisplay();
+		mAdapter.notifyDataSetChanged();
 	}
 
-	/**
-	 * 更新日期显示
-	 */
-	private void updateDateDisplay() {
-		mDateTextView.setText(new StringBuilder().append(mYear).append("-")
-				.append((mMonth + 1) < 10 ? "0" + (mMonth + 1) : (mMonth + 1))
-				.append("-").append((mDay < 10) ? "0" + mDay : mDay));
-	}
-
-	/**
-	 * 日期控件的事件
-	 */
 	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
 
 		public void onDateSet(DatePicker view, int year, int monthOfYear,
 				int dayOfMonth) {
-			mYear = year;
-			mMonth = monthOfYear;
-			mDay = dayOfMonth;
-
-			updateDateDisplay();
+			setDate(year, monthOfYear, dayOfMonth);
 		}
 	};
 
@@ -293,4 +244,211 @@ public class PersonalDailyInformationActivity extends Activity {
 		}
 
 	};
+
+/*
+	public void onItemSelected(AdapterView<?> listView, View view,
+			int position, long id) {
+		if (position == 1) {
+			// listView.setItemsCanFocus(true);
+
+			// Use afterDescendants, because I don't want the ListView to steal
+			// focus
+			listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+			mAdapter.requestFocus();
+			// myEditText.requestFocus();
+		} else {
+			if (!listView.isFocused()) {
+				// listView.setItemsCanFocus(false);
+
+				// Use beforeDescendants so that the EditText doesn't re-take
+				// focus
+				listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+				listView.requestFocus();
+			}
+		}
+	}
+
+	public void onNothingSelected(AdapterView<?> listView) {
+		// This happens when you start scrolling, so we need to prevent it from
+		// staying
+		// in the afterDescendants mode if the EditText was focused
+		listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+	}
+*/
+	public class PersonalDailyDetailInformationAdapter extends BaseAdapter {
+		private Context mContext;
+		private PersonalDailyInformation mPersonalDailyInformation = null;
+
+		public PersonalDailyDetailInformationAdapter(Context context,
+				PersonalDailyInformation infor) {
+			mContext = context;
+			mPersonalDailyInformation = infor;
+		}
+
+		// ====================================================================
+		@Override
+		public int getCount() {
+			return mPersonalDailyInformation.detailList == null ? 1
+					: mPersonalDailyInformation.detailList.size() + 1;
+		}
+
+		@Override
+		public Object getItem(int arg0) {
+			return null;
+		}
+
+		@Override
+		public long getItemId(int arg0) {
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View view, ViewGroup arg2) {
+			if (position < 0 || position >= getCount()) {
+				return null;
+			}
+
+			if (0 == position) {
+				return getHeaderView(view, arg2);
+			}
+
+			return getItemView(position, view, arg2);
+		}
+
+		// ====================================================================
+		private View getHeaderView(View view, ViewGroup arg2) {
+			ItemHeaderViewGroup viewGroup = null;
+
+			if (null == view) {
+				LayoutInflater factory = LayoutInflater.from(mContext);
+				view = factory
+						.inflate(
+								R.layout.listitem_person_daily_information_header,
+								null);
+
+				viewGroup = new ItemHeaderViewGroup();
+				viewGroup.mDateTextView = (TextView) view
+						.findViewById(R.id.date_text);
+				viewGroup.mChooseDateButton = (Button) view
+						.findViewById(R.id.choose_date);
+				viewGroup.mNameEditText = (EditText) view
+						.findViewById(R.id.name);
+				viewGroup.mLevelRatingBar = (RatingBar) view
+						.findViewById(R.id.level);
+
+				mItemHeaderViewGroup = viewGroup;
+
+				view.setTag(viewGroup);
+			} else {
+				viewGroup = (ItemHeaderViewGroup) view.getTag();
+			}
+
+			showItemHeader(viewGroup);
+
+			return view;
+		}
+
+		private String getDay(Date date) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			String dateString = formatter.format(date);
+			return dateString;
+		}
+
+		private void showItemHeader(final ItemHeaderViewGroup viewGroup) {
+			viewGroup.mDateTextView
+					.setText(getDay(mPersonalDailyInformation.whichDay));
+			viewGroup.mNameEditText.setText(mPersonalDailyInformation.name);
+			viewGroup.mNameEditText.addTextChangedListener(new TextWatcher() {
+				@Override
+				public void onTextChanged(CharSequence s, int start,
+						int before, int count) {
+
+				}
+
+				@Override
+				public void beforeTextChanged(CharSequence s, int start,
+						int count, int after) {
+
+				}
+
+				@Override
+				public void afterTextChanged(Editable arg0) {
+					mPersonalDailyInformation.name = arg0.toString();
+				}
+			});
+
+			viewGroup.mLevelRatingBar
+					.setRating(mPersonalDailyInformation.level);
+
+			viewGroup.mChooseDateButton
+					.setOnClickListener(new View.OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							Message msg = new Message();
+							if (viewGroup.mChooseDateButton.equals((Button) v)) {
+								msg.what = PersonalDailyInformationActivity.SHOW_CHOOSE_DATE_DIALOG;
+							}
+							PersonalDailyInformationActivity.this.dateandtimeHandler
+									.sendMessage(msg);
+						}
+					});
+		}
+
+		public String getName() {
+			return mPersonalDailyInformation.name;
+		}
+
+		public int getLevel() {
+			return (int) mItemHeaderViewGroup.mLevelRatingBar.getRating();
+		}
+
+		public void requestFocus() {
+			mItemHeaderViewGroup.mNameEditText.requestFocus();
+		}
+
+		private class ItemHeaderViewGroup {
+			private EditText mNameEditText;
+			private RatingBar mLevelRatingBar;
+
+			private TextView mDateTextView;
+			private Button mChooseDateButton;
+		}
+
+		private ItemHeaderViewGroup mItemHeaderViewGroup = null;
+
+		// ====================================================================
+		public View getItemView(int position, View view, ViewGroup arg2) {
+
+			ItemViewGroup viewGroup = null;
+
+			if (null == view) {
+				LayoutInflater factory = LayoutInflater.from(mContext);
+				viewGroup = new ItemViewGroup();
+
+				view = factory.inflate(
+						R.layout.listitem_person_daily_information, null);
+
+				viewGroup.mTextView = (TextView) view.findViewById(R.id.text);
+				viewGroup.mImageButton = (ImageButton) view
+						.findViewById(R.id.image);
+
+				view.setTag(viewGroup);
+			} else {
+				viewGroup = (ItemViewGroup) view.getTag();
+			}
+
+			showItem(position - 1, viewGroup);
+
+			return view;
+		}
+
+		private void showItem(final int position, ItemViewGroup viewGroup) {
+		}
+
+		private class ItemViewGroup {
+			public TextView mTextView;
+			public ImageButton mImageButton;
+		}
+	}
 }

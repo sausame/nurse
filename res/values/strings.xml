@@ -12,5 +12,6 @@
     <string name="level">Level</string>
     <string name="detail">Detail</string>
     <string name="title_activity_personal_daily_information_detail">Detail</string>
+    <string name="no_name_message">Cancel to store a record without a name.</string>
 
 </resources>
