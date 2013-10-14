@@ -125,6 +125,8 @@ public class PersonalDailyInformationManager {
 			Log.v(TAG, "Add " + mCurrentIndex + ":" + newInfor.toJSONObject());
 			mJsonArray.put(mCurrentIndex, newInfor.toJSONObject());
 
+			reset(); // Reset is needed.
+
 			return true;
 
 		} catch (JSONException e) {
@@ -207,6 +209,8 @@ public class PersonalDailyInformationManager {
 		try {
 			str += mJsonArray.toString(2);
 		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 		}
 

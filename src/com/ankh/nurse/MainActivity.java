@@ -163,7 +163,6 @@ public class MainActivity extends Activity {
 
 		mData.clear();
 
-		// XXX Number is wrong.
 		Date lastDate = null;
 		PersonalDailyInformation infor;
 
@@ -210,27 +209,16 @@ public class MainActivity extends Activity {
 			return 0;
 		}
 
+		private final static int MAX_IN_AN_ITEM = 6;
+
 		@Override
 		public View getView(int position, View view, ViewGroup arg2) {
-			Log.i(TAG, "" + position);
 			if (position < 0 || position >= getCount()) {
 				return null;
 			}
 
 			DateStatusViewGroup viewGroup = null;
-			int num = mData.get(position).size();
-
-			// XXX Every time it will be created. Wrong !!!
-			if (view != null) {
-				viewGroup = (DateStatusViewGroup) view.getTag();
-				Log.i(TAG, "" + viewGroup.mStatusViewGroupList.size() + " ? " + num);
-				if (viewGroup.mStatusViewGroupList.size() != num + 1) {
-					// The number is changed.
-					viewGroup = null;
-				}
-			}
-
-			if (viewGroup == null) {
+			if (view == null) {
 				LayoutInflater factory = LayoutInflater.from(mContext);
 				view = factory.inflate(R.layout.listitem_date_status, null);
 
@@ -240,7 +228,7 @@ public class MainActivity extends Activity {
 				viewGroup.mStatusLayout = (LinearLayout) view
 						.findViewById(R.id.layout);
 
-				for (int i = 0; i < num + 1; i++) {
+				for (int i = 0; i < MAX_IN_AN_ITEM; i++) {
 					OneStatusViewGroup object = new OneStatusViewGroup();
 					View viewOneStatus = factory.inflate(
 							R.layout.layout_one_status,
@@ -257,9 +245,10 @@ public class MainActivity extends Activity {
 				}
 
 				view.setTag(viewGroup);
+			} else {
+				viewGroup = (DateStatusViewGroup) view.getTag();
 			}
 
-			Log.i(TAG, "ooo " + viewGroup.mStatusViewGroupList.size() + " ? " + num);
 			showItemInfos(position, viewGroup);
 
 			return view;
@@ -275,15 +264,23 @@ public class MainActivity extends Activity {
 			viewGroup.mDate.setText(getDay(infor.whichDay));
 
 			int num = mData.get(position).size();
-			for (int i = 0; i < num; i++) {
+			if (num >= MAX_IN_AN_ITEM) {
+				num = MAX_IN_AN_ITEM - 1;
+			}
+
+			OneStatusViewGroup object;
+			int i;
+
+			for (i = 0; i < num; i++) {
 				final int offset = i;
 				final int id = currentState.get(offset).id;
 
-				OneStatusViewGroup object = viewGroup.mStatusViewGroupList
+				object = viewGroup.mStatusViewGroupList
 						.get(offset);
 
 				infor = currentState.get(offset).infor;
 
+				object.mButton.setVisibility(View.VISIBLE);
 				object.mButton.setText(infor.name);
 				object.mButton
 						.setBackgroundResource(getBackgroundResource(infor.level));
@@ -294,12 +291,12 @@ public class MainActivity extends Activity {
 						onClickTextButton(id, position, offset);
 					}
 				});
+
+				object.mImage.setVisibility(View.GONE);
 			}
 
-			OneStatusViewGroup object = viewGroup.mStatusViewGroupList.get(num);
-
+			object = viewGroup.mStatusViewGroupList.get(i ++);
 			object.mButton.setVisibility(View.GONE);
-
 			object.mImage.setVisibility(View.VISIBLE);
 			object.mImage.setOnClickListener(new OnClickListener() {
 				@Override
@@ -307,6 +304,12 @@ public class MainActivity extends Activity {
 					onClickImageButton(position);
 				}
 			});
+
+			for (; i < MAX_IN_AN_ITEM; i ++) {
+				object = viewGroup.mStatusViewGroupList.get(i);
+				object.mButton.setVisibility(View.GONE);
+				object.mImage.setVisibility(View.GONE);
+			}
 		}
 
 		private int getBackgroundResource(int level) {
