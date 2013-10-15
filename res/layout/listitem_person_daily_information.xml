@@ -4,22 +4,26 @@
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants" >
 
+     <ImageButton
+         android:id="@+id/image"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_centerHorizontal="true"
+         android:background="@drawable/list_selector"
+         android:contentDescription="@string/hello_world"
+         android:focusable="false"
+         android:scaleType="centerCrop"
+         android:src="@drawable/ic_launcher" />
+     
     <TextView
         android:id="@+id/text"
-        android:layout_width="@dimen/listbar_layout_1_item_width"
+        android:layout_width="fill_parent"
         android:layout_height="@dimen/listbar_layout_height"
-        android:layout_alignParentLeft="true"
+        android:layout_below="@id/image"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="@string/detail"
         android:textColor="@color/list_main"
         android:textSize="@dimen/list_main_textsize" />
-
-     <ImageButton
-        android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/list_selector"
-        android:contentDescription="@string/hello_world"
-        android:focusable="false"
-        android:scaleType="centerInside"
-        android:src="@drawable/ic_launcher" />
-
+     
 </RelativeLayout>

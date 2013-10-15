@@ -58,6 +58,10 @@ public class PersonalDailyInformation implements Serializable {
 		return compare(infor.whichDay);
 	}
 
+	public int getDetailNumber() {
+		return detailList == null ? 0 : detailList.size();
+	}
+
 	public void addDetail(DetailInformation detailInfor) {
 		if (detailList == null) {
 			detailList = new ArrayList<DetailInformation>();
@@ -75,8 +79,7 @@ public class PersonalDailyInformation implements Serializable {
 	}
 
 	public boolean isDetailExist(int position) {
-		return detailList != null && position >= 0
-				&& position < detailList.size();
+		return position < getDetailNumber();
 	}
 
 	public DetailInformation getDetail(int position) {

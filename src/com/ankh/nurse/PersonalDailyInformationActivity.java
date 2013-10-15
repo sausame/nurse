@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -30,9 +31,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.view.Menu;
 
-public class PersonalDailyInformationActivity extends Activity {
+public class PersonalDailyInformationActivity extends Activity implements OnItemClickListener {
 
 	private static final String TAG = "PDIActivity";
 	public static final String MESSAGE = TAG;
@@ -62,6 +64,7 @@ public class PersonalDailyInformationActivity extends Activity {
 				mPersonalDailyInformation);
 		mDetailList = (ListView) findViewById(R.id.list);
 		mDetailList.setAdapter(mAdapter);
+		mDetailList.setOnItemClickListener(this);
 	}
 
 	@Override
@@ -79,6 +82,10 @@ public class PersonalDailyInformationActivity extends Activity {
 			return true;
 		case R.id.action_delete:
 			onActionDelete();
+			return true;
+
+		case R.id.action_add:
+			onActionAdd();
 			return true;
 
 		default:
@@ -103,6 +110,10 @@ public class PersonalDailyInformationActivity extends Activity {
 		setResult(RESULT_OK, intent);
 
 		finish();
+	}
+
+	private void onActionAdd() {
+		onDetailClicked(mPersonalDailyInformation.getDetailNumber());
 	}
 
 	@Override
@@ -137,7 +148,7 @@ public class PersonalDailyInformationActivity extends Activity {
 
 	private void save() {
 		if (0 == mPersonalDailyInformation.name.length()) {
-			Toast.makeText(this, R.string.no_name_message, Toast.LENGTH_LONG)
+			Toast.makeText(this, R.string.no_name_message, Toast.LENGTH_SHORT)
 					.show();
 			return;
 		}
@@ -153,6 +164,7 @@ public class PersonalDailyInformationActivity extends Activity {
 	}
 
 	private void onDetailClicked(int position) {
+		Log.i(TAG, "Position: " + position);
 		Intent intent = new Intent(this,
 				PersonalDailyInformationDetailActivity.class);
 
@@ -171,17 +183,27 @@ public class PersonalDailyInformationActivity extends Activity {
 	private void onDetailChanged(int position,
 			PersonalDailyInformation.DetailInformation infor) {
 		if (mPersonalDailyInformation.isDetailExist(position)) {
-			mPersonalDailyInformation.setDetail(position, infor);
+			if (infor != null) {
+				mPersonalDailyInformation.setDetail(position, infor);
+			} else {
+				mPersonalDailyInformation.delDetail(position);
+			}
 		} else {
 			mPersonalDailyInformation.addDetail(infor);
 		}
+
+		mAdapter.notifyDataSetChanged();
 	}
 
+	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		onDetailChanged(
-				requestCode/* position */,
-				(PersonalDailyInformation.DetailInformation) data
-						.getSerializableExtra(PersonalDailyInformationDetailActivity.MESSAGE));
+		Log.i(TAG, "" + requestCode + ", " + resultCode + ", " + data);
+		if (resultCode == Activity.RESULT_OK) {
+			onDetailChanged(
+					requestCode/* position */,
+					(PersonalDailyInformation.DetailInformation) data
+							.getSerializableExtra(PersonalDailyInformationDetailActivity.MESSAGE));
+		}
 	}
 
 	private void setDate(int year, int monthOfYear, int dayOfMonth) {
@@ -244,6 +266,13 @@ public class PersonalDailyInformationActivity extends Activity {
 
 	};
 
+	@Override
+	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
+		if (position != 0) { 
+			onDetailClicked(position - 1);
+		}
+	}
+
 	/*
 	 * public void onItemSelected(AdapterView<?> listView, View view, int
 	 * position, long id) { if (position == 1) { //
@@ -282,31 +311,31 @@ public class PersonalDailyInformationActivity extends Activity {
 		}
 
 		@Override
-		public Object getItem(int arg0) {
+		public Object getItem(int id) {
 			return null;
 		}
 
 		@Override
-		public long getItemId(int arg0) {
+		public long getItemId(int id) {
 			return 0;
 		}
 
 		@Override
-		public View getView(int position, View view, ViewGroup arg2) {
+		public View getView(int position, View view, ViewGroup parentView) {
 			if (position < 0 || position >= getCount()) {
 				return null;
 			}
 
 			if (0 == position) {
-				return getHeaderView(view, arg2);
+				return getHeaderView(view, parentView);
 			}
 
-			return getItemView(position, view, arg2);
+			return getItemView(position, view, parentView);
 		}
 
 		// ====================================================================
-		private View getHeaderView(View view, ViewGroup arg2) {
-			ItemHeaderViewGroup viewGroup = null;
+		private View getHeaderView(View view, ViewGroup parentView) {
+			ItemViewGroup viewGroup = null;
 
 			if (null == view) {
 				LayoutInflater factory = LayoutInflater.from(mContext);
@@ -315,7 +344,7 @@ public class PersonalDailyInformationActivity extends Activity {
 								R.layout.listitem_person_daily_information_header,
 								null);
 
-				viewGroup = new ItemHeaderViewGroup();
+				viewGroup = new ItemViewGroup();
 				viewGroup.mDateTextView = (TextView) view
 						.findViewById(R.id.date_text);
 				viewGroup.mChooseDateButton = (Button) view
@@ -325,11 +354,11 @@ public class PersonalDailyInformationActivity extends Activity {
 				viewGroup.mLevelRatingBar = (RatingBar) view
 						.findViewById(R.id.level);
 
-				mItemHeaderViewGroup = viewGroup;
+//				mItemViewGroup = viewGroup;
 
 				view.setTag(viewGroup);
 			} else {
-				viewGroup = (ItemHeaderViewGroup) view.getTag();
+				viewGroup = (ItemViewGroup) view.getTag();
 			}
 
 			showItemHeader(viewGroup);
@@ -343,7 +372,11 @@ public class PersonalDailyInformationActivity extends Activity {
 			return dateString;
 		}
 
-		private void showItemHeader(final ItemHeaderViewGroup viewGroup) {
+		private void showItemHeader(final ItemViewGroup viewGroup) {
+			if (! viewGroup.isHeaderItem()) {
+				return;
+			}
+
 			viewGroup.mDateTextView
 					.setText(getDay(mPersonalDailyInformation.whichDay));
 			viewGroup.mNameEditText.setText(mPersonalDailyInformation.name);
@@ -359,8 +392,8 @@ public class PersonalDailyInformationActivity extends Activity {
 				}
 
 				@Override
-				public void afterTextChanged(Editable arg0) {
-					mPersonalDailyInformation.name = arg0.toString();
+				public void afterTextChanged(Editable e) {
+					mPersonalDailyInformation.name = e.toString();
 				}
 			});
 
@@ -377,7 +410,6 @@ public class PersonalDailyInformationActivity extends Activity {
 
 			viewGroup.mChooseDateButton
 					.setOnClickListener(new View.OnClickListener() {
-
 						@Override
 						public void onClick(View v) {
 							Message msg = new Message();
@@ -388,24 +420,19 @@ public class PersonalDailyInformationActivity extends Activity {
 									.sendMessage(msg);
 						}
 					});
-		}
+			
 
+		}
+/*
 		public void requestFocus() {
-			mItemHeaderViewGroup.mNameEditText.requestFocus();
+			mItemViewGroup.mNameEditText.requestFocus();
 		}
+*/
 
-		private class ItemHeaderViewGroup {
-			private EditText mNameEditText;
-			private RatingBar mLevelRatingBar;
-
-			private TextView mDateTextView;
-			private Button mChooseDateButton;
-		}
-
-		private ItemHeaderViewGroup mItemHeaderViewGroup = null;
+//		private ItemViewGroup mItemViewGroup = null;
 
 		// ====================================================================
-		public View getItemView(int position, View view, ViewGroup arg2) {
+		public View getItemView(int position, View view, ViewGroup parentView) {
 
 			ItemViewGroup viewGroup = null;
 
@@ -431,11 +458,43 @@ public class PersonalDailyInformationActivity extends Activity {
 		}
 
 		private void showItem(final int position, ItemViewGroup viewGroup) {
+			if (0 == position || ! viewGroup.isItem()) {
+				return;
+			}
+
+			PersonalDailyInformation.DetailInformation infor
+				= mPersonalDailyInformation.getDetail(position);
+
+			viewGroup.mTextView.setText(infor.description);
+			if (infor.attachmentPath.length() > 0) {
+				viewGroup.mImageButton.setImageDrawable(Drawable
+						.createFromPath(infor.attachmentPath));
+			} else {
+				viewGroup.mImageButton.setBackgroundResource(R.drawable.ic_launcher);
+			}
 		}
 
+		// ====================================================================
 		private class ItemViewGroup {
-			public TextView mTextView;
-			public ImageButton mImageButton;
+			/* Header */
+			private EditText mNameEditText;
+			private RatingBar mLevelRatingBar;
+
+			private TextView mDateTextView;
+			private Button mChooseDateButton;
+
+			/* Item */
+			private TextView mTextView;
+			private ImageButton mImageButton;
+
+			private boolean isHeaderItem() {
+				return mNameEditText != null && mDateTextView != null; 
+			}
+
+			private boolean isItem() {
+				return mTextView != null && mImageButton != null; 
+			}
 		}
 	}
+
 }
