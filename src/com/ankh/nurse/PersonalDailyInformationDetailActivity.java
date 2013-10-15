@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -27,6 +28,9 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 	private static final String TAG = "PDIDetail";
 	public static final String MESSAGE = TAG;
 
+	private static final int REQUEST_CODE_CAPTURE_IMAGE = 0;
+	private static final int REQUEST_CODE_PICK_IMAGE = 1;
+
 	private PersonalDailyInformation.DetailInformation mInformation = null;
 
 	private EditText mEditText;
@@ -43,6 +47,22 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				onImageButtonClicked();
+			}
+		});
+
+		ImageButton button = (ImageButton) findViewById(R.id.capture);
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				capture();
+			}
+		});
+
+		button = (ImageButton) findViewById(R.id.select);
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				select();
 			}
 		});
 
@@ -100,14 +120,22 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 		return super.onKeyDown(keyCode, event);
 	}
 
+	private void capture() {
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		startActivityForResult(intent, REQUEST_CODE_CAPTURE_IMAGE);
+	}
+
+	private void select() {
+		// Select a picture.
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
+	}
+
 	private void onImageButtonClicked() {
-		if (mInformation.attachmentPath.length() > 0) {
-			// View
-		} else {
-			// Select a picture.
-			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			startActivityForResult(intent, 0);
-		}
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setDataAndType(Uri.fromFile(new File(mInformation.attachmentPath)), "image/*");
+		startActivity(intent);
 	}
 
 	private boolean savePicture(Bitmap bitmap) {
@@ -153,7 +181,13 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if (resultCode == Activity.RESULT_OK) {
-			savePicture((Bitmap) data.getExtras().get("data"));
+			switch (requestCode) {
+			case REQUEST_CODE_CAPTURE_IMAGE:
+				savePicture((Bitmap) data.getExtras().get("data"));
+				break;
+			case REQUEST_CODE_PICK_IMAGE:
+				break;
+			}
 		}
 	}
 
@@ -163,10 +197,11 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 		}
 
 		if (mInformation.attachmentPath.length() > 0) {
+			mImageButton.setVisibility(View.VISIBLE);
 			mImageButton.setImageDrawable(Drawable
 					.createFromPath(mInformation.attachmentPath));
 		} else {
-			mImageButton.setBackgroundResource(R.drawable.ic_launcher);
+			mImageButton.setVisibility(View.GONE);
 		}
 	}
 
