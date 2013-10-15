@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.KeyEvent;
@@ -176,6 +177,40 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 		return true;
 	}
 
+	private void setPicture(Uri uri) {
+		mInformation.attachmentPath = getFilePath(uri);
+		setViews();
+	}
+
+    private String getFilePath(Uri uri) {
+		Log.v(TAG, uri.toString());
+
+		String path = null;
+		String name = null;
+
+        String scheme = uri.getScheme();
+        if (scheme.equals("content")) {
+            String[] fields = { MediaStore.MediaColumns.DATA,
+                              MediaStore.MediaColumns.TITLE};
+            Cursor cursor = this.getContentResolver().query(uri,fields,null,null,null);
+            if (cursor != null) {
+                int dataIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                int nameIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.TITLE);
+                cursor.moveToFirst();
+                path = cursor.getString(dataIndex);
+                name = cursor.getString(nameIndex);
+                cursor.close();
+            } else {
+				Log.e(TAG, "Can't find filename of " + uri);
+			}
+        } else if (uri.getScheme().equals("file")) {
+            path = uri.getPath();
+            name = path.substring(path.lastIndexOf('/') + 1);
+        }
+
+		return path;
+    }
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -186,6 +221,7 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 				savePicture((Bitmap) data.getExtras().get("data"));
 				break;
 			case REQUEST_CODE_PICK_IMAGE:
+				setPicture((Uri) data.getData());
 				break;
 			}
 		}
