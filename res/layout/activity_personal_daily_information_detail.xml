@@ -39,7 +39,7 @@
         android:contentDescription="@string/hello_world"
         android:focusable="false"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/ic_camera" />
 
     <ImageButton
         android:id="@+id/select"
@@ -49,6 +49,6 @@
         android:contentDescription="@string/hello_world"
         android:focusable="false"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/ic_add" />
 
 </LinearLayout>

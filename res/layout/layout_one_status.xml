@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:contentDescription="@string/hello_world"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_launcher"
+        android:src="@drawable/ic_add"
         android:background="@drawable/list_selector"
         android:focusable="false"
         android:visibility="gone" />
