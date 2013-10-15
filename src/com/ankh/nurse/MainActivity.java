@@ -168,21 +168,12 @@ public class MainActivity extends Activity {
 	private void onActionSettings() {
 	}
 
-	private String getDay(int diff) {
-		Calendar calendar = new GregorianCalendar();
-		calendar.setTime(new Date());
-		calendar.add(Calendar.DATE, diff);
-		return getDay(calendar.getTime());
-	}
-
 	private String getDay(Date date) {
-		SimpleDateFormat formatter = new SimpleDateFormat("MM-dd");
-		String dateString = formatter.format(date);
-		return dateString;
+		return SimpleDateFormat.getDateInstance().format(date);
 	}
 
 	public void initData() {
-		mManager.setPathname("/sdcard/0.json");
+		mManager.setPathname(getString(R.string.infor_filename));
 		mManager.load();
 
 		mData = new ArrayList<ArrayList<StatusItem>>();

@@ -377,9 +377,7 @@ public class PersonalDailyInformationActivity extends Activity implements OnItem
 	}
 
 	private String getDay(Date date) {
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		String dateString = formatter.format(date);
-		return dateString;
+		return SimpleDateFormat.getDateInstance().format(date);
 	}
 
 	private void showItemHeader() {

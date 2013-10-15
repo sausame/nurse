@@ -2,6 +2,7 @@ package com.ankh.nurse;
 
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -162,7 +163,7 @@ public class PersonalDailyInformation implements Serializable {
 		try {
 			info = new PersonalDailyInformation();
 
-			info.setUTCDateTime(object.getString("whichDay"));
+			info.setDay(object.getString("whichDay"));
 			info.name = object.getString("name");
 			info.level = Integer.parseInt(object.getString("level"));
 		} catch (Exception e) {
@@ -207,7 +208,7 @@ public class PersonalDailyInformation implements Serializable {
 
 		return str;
 	}
-
+/*
 	private final String getUTCDateTime() {
 		try {
 			DateFormat df = DateFormat.getDateTimeInstance();
@@ -228,11 +229,25 @@ public class PersonalDailyInformation implements Serializable {
 			e.printStackTrace();
 		}
 	}
+*/
+	public String getDay() {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		return formatter.format(whichDay);
+	}
+
+	public void setDay(String day) {
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			whichDay = formatter.parse(day);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public JSONObject toJSONObject() {
 		try {
 			JSONObject object = new JSONObject();
-			object.put("whichDay", getUTCDateTime());
+			object.put("whichDay", getDay());
 			object.put("name", name);
 			object.put("level", level);
 

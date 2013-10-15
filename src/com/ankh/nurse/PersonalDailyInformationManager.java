@@ -98,7 +98,7 @@ public class PersonalDailyInformationManager {
 					continue;
 				}
 
-				if (diff < 0) {
+				if (diff <= 0) {
 					// Append.
 					int i = mJsonArray.length() - 1;
 					mJsonArray.put(mJsonArray.getJSONObject(i));
@@ -109,8 +109,6 @@ public class PersonalDailyInformationManager {
 					}
 
 					// Insert before.
-				} else {
-					// Replace.
 				}
 
 				// Move the current.
@@ -122,7 +120,7 @@ public class PersonalDailyInformationManager {
 				mJsonArray = new JSONArray();
 			}
 
-			Log.v(TAG, "Add " + mCurrentIndex + ":" + newInfor.toJSONObject());
+//			Log.v(TAG, "Add " + mCurrentIndex + ":" + newInfor.toJSONObject());
 			mJsonArray.put(mCurrentIndex, newInfor.toJSONObject());
 
 			return true;
