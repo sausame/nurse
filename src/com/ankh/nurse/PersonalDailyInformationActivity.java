@@ -1,5 +1,6 @@
 package com.ankh.nurse;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.GregorianCalendar;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -340,13 +342,29 @@ public class PersonalDailyInformationActivity extends Activity implements
 					.getDetail(position);
 
 			viewGroup.mTextView.setText(infor.description);
-			if (infor.attachmentPath.length() > 0) {
+			final String path = infor.attachmentPath;
+			if (path.length() > 0) {
 				viewGroup.mImageButton.setVisibility(View.VISIBLE);
 				viewGroup.mImageButton.setImageDrawable(Drawable
-						.createFromPath(infor.attachmentPath));
+						.createFromPath(path));
+
+				viewGroup.mImageButton
+						.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								showImage(path);
+							}
+						});
+
 			} else {
 				viewGroup.mImageButton.setVisibility(View.GONE);
 			}
+		}
+
+		private void showImage(final String path) {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setDataAndType(Uri.fromFile(new File(path)), "image/*");
+			mContext.startActivity(intent);
 		}
 
 		// ====================================================================
@@ -374,9 +392,8 @@ public class PersonalDailyInformationActivity extends Activity implements
 
 		mLevelSpinner = (Spinner) view.findViewById(R.id.spinner);
 
-		
 		showItemHeader();
-		
+
 		return view;
 	}
 
@@ -415,7 +432,7 @@ public class PersonalDailyInformationActivity extends Activity implements
 						.sendMessage(msg);
 			}
 		});
-		
+
 		mLevelAdapter = new LevelAdapter(this);
 		mLevelSpinner.setAdapter(mLevelAdapter);
 		mLevelSpinner.setSelection(mPersonalDailyInformation.level);
@@ -502,12 +519,9 @@ public class PersonalDailyInformationActivity extends Activity implements
 				R.drawable.list_selector_holo_yellow,
 				R.drawable.list_selector_holo_orange,
 				R.drawable.list_selector_holo_red };
-		
-		private final int mResIDGroupOfText[] = {
-				R.string.lighter,
-				R.string.light,
-				R.string.serious,
-				R.string.more_serious,
+
+		private final int mResIDGroupOfText[] = { R.string.lighter,
+				R.string.light, R.string.serious, R.string.more_serious,
 				R.string.very_serious };
 
 		// ====================================================================
