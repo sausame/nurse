@@ -15,4 +15,9 @@
     <string name="no_name_message">Cancel to store a record without a name.</string>
     <string name="infor_filename">/sdcard/0.json</string>
 
+    <string name="lighter">Lighter</string>
+    <string name="light">Light</string>
+    <string name="serious">Serious</string>
+    <string name="more_serious">More Serious</string>
+    <string name="very_serious">Very Serious</string>
 </resources>
