@@ -345,8 +345,7 @@ public class PersonalDailyInformationActivity extends Activity implements
 			final String path = infor.attachmentPath;
 			if (path.length() > 0) {
 				viewGroup.mImageButton.setVisibility(View.VISIBLE);
-				viewGroup.mImageButton.setImageDrawable(Drawable
-						.createFromPath(path));
+				ImageUtils.setImageView(viewGroup.mImageButton, path);
 
 				viewGroup.mImageButton
 						.setOnClickListener(new View.OnClickListener() {

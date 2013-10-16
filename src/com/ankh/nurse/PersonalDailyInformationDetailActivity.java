@@ -234,8 +234,7 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 
 		if (mInformation.attachmentPath.length() > 0) {
 			mImageButton.setVisibility(View.VISIBLE);
-			mImageButton.setImageDrawable(Drawable
-					.createFromPath(mInformation.attachmentPath));
+			ImageUtils.setImageView(mImageButton, mInformation.attachmentPath);
 		} else {
 			mImageButton.setVisibility(View.GONE);
 		}
