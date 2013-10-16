@@ -9,7 +9,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.RectF;
 import android.os.Build;
-import android.util.Log;
 import android.view.animation.LinearInterpolator;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -69,6 +68,10 @@ public class SwipeHelper {
 		mDensityScale = densityScale;
 		mPagingTouchSlop = pagingTouchSlop;
 		mContext = context;
+	}
+
+	public View getCurrentView() {
+		return mCurrView;
 	}
 
 	public void setDensityScale(float densityScale) {
@@ -292,10 +295,9 @@ public class SwipeHelper {
 				.canChildBeDismissed(view);
 		float newPos;
 
-		if (velocity < 0
-				|| (velocity == 0 && getTranslation(animView) < 0)
-				// if we use the Menu to dismiss an item in landscape, animate
-				// up
+		if (velocity < 0 || (velocity == 0 && getTranslation(animView) < 0)
+		// if we use the Menu to dismiss an item in landscape, animate
+		// up
 				|| (velocity == 0 && getTranslation(animView) == 0 && mSwipeDirection == Y)) {
 			newPos = -getSize(animView);
 		} else {
@@ -348,6 +350,10 @@ public class SwipeHelper {
 			}
 		});
 		anim.start();
+	}
+
+	public void snapChild() {
+		snapChild(mCurrView, MAX_DISMISS_VELOCITY * mDensityScale);
 	}
 
 	public boolean onTouchEvent(MotionEvent ev) {

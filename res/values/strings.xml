@@ -20,4 +20,6 @@
     <string name="serious">Serious</string>
     <string name="more_serious">More Serious</string>
     <string name="very_serious">Very Serious</string>
+    <string name="record_is_deleted">1 Deleted</string>
+    <string name="undo">Undo</string>
 </resources>

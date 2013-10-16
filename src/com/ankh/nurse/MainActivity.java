@@ -47,6 +47,23 @@ public class MainActivity extends Activity {
 		mAdapter = new PersonalDailyInformationAdapter(this, mData);
 		mDateStatusList = (SwipeListView) findViewById(R.id.list);
 		mDateStatusList.setAdapter(mAdapter);
+		mDateStatusList.setWindow(getWindow());
+		mDateStatusList
+				.setListViewCallBack(new SwipeListView.ListViewCallBack() {
+					@Override
+					public void showCannotSwipe() {
+					}
+
+					@Override
+					public void onChildDismissed(View v, int position) {
+						deleteRaw(position);
+					}
+
+					@Override
+					public boolean canDismissed(View v, int position) {
+						return true;
+					}
+				});
 
 		setData();
 	}
@@ -163,6 +180,18 @@ public class MainActivity extends Activity {
 	private void onActionSettings() {
 	}
 
+	private void deleteRaw(int position) {
+		ArrayList<StatusItem> status = mData.get(position - mDateStatusList.getHeaderViewsCount());
+		int num = status.size();
+		for (int i = 0; i < num; i ++) {
+			int id = status.get(i).id;
+			mManager.del(id);
+		}
+
+		mManager.save();
+		setData();
+	}
+
 	private String getDay(Date date) {
 		return SimpleDateFormat.getDateInstance().format(date);
 	}
@@ -274,13 +303,13 @@ public class MainActivity extends Activity {
 		private void showItemInfos(final int position,
 				DateStatusViewGroup viewGroup) {
 
-			ArrayList<StatusItem> currentState = mData.get(position);
+			ArrayList<StatusItem> status = mData.get(position);
 
-			PersonalDailyInformation infor = currentState.get(0).infor;
+			PersonalDailyInformation infor = status.get(0).infor;
 
 			viewGroup.mDate.setText(getDay(infor.whichDay));
 
-			int num = mData.get(position).size();
+			int num = status.size();
 			if (num >= MAX_IN_AN_ITEM) {
 				num = MAX_IN_AN_ITEM - 1;
 			}
@@ -290,11 +319,11 @@ public class MainActivity extends Activity {
 
 			for (i = 0; i < num; i++) {
 				final int offset = i;
-				final int id = currentState.get(offset).id;
+				final int id = status.get(offset).id;
 
 				object = viewGroup.mStatusViewGroupList.get(offset);
 
-				infor = currentState.get(offset).infor;
+				infor = status.get(offset).infor;
 
 				object.mButton.setVisibility(View.VISIBLE);
 				object.mButton.setText(infor.name);

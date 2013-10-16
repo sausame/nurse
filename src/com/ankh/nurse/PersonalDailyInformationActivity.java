@@ -74,6 +74,25 @@ public class PersonalDailyInformationActivity extends Activity implements
 				mPersonalDailyInformation);
 		mDetailList.setAdapter(mAdapter);
 		mDetailList.setOnItemClickListener(this);
+
+		mDetailList.setWindow(getWindow());
+		mDetailList
+				.setListViewCallBack(new SwipeListView.ListViewCallBack() {
+					@Override
+					public void showCannotSwipe() {
+					}
+
+					@Override
+					public void onChildDismissed(View v, int position) {
+						deleteDetail(position);
+					}
+
+					@Override
+					public boolean canDismissed(View v, int position) {
+						return true;
+					}
+				});
+
 	}
 
 	@Override
@@ -187,6 +206,13 @@ public class PersonalDailyInformationActivity extends Activity implements
 		}
 
 		startActivityForResult(intent, position);
+	}
+
+	private void deleteDetail(int position) {
+		position -= mDetailList.getHeaderViewsCount();
+		mPersonalDailyInformation.delDetail(position);
+
+		mAdapter.notifyDataSetChanged();
 	}
 
 	private void onDetailChanged(int position,

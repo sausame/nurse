@@ -3,29 +3,39 @@ package com.ankh.nurse;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 
 public class SwipeListView extends ListView implements SwipeHelper.Callback {
 	private static final String TAG = SwipeListView.class.getSimpleName();
 
 	public interface ListViewCallBack {
-		public void onChildDismissed(View v);
+		public void onChildDismissed(View v, int position);
 
 		public void showCannotSwipe();
 
-		public boolean canDismissed(View v);
+		public boolean canDismissed(View v, int position);
 	}
 
 	private SwipeHelper mSwipeHelper = null;
 	private ListViewCallBack mCallBack = null;
 	private Context mContext;
+	private Window mWindow;
+	private PopupWindow mUndoWindow = null;
+	private int mChildIndex;
+	private boolean mIsToDismiss = false;
 
 	public SwipeListView(Context context) {
 		this(context, null);
@@ -44,6 +54,10 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 				.getScaledPagingTouchSlop();
 		mSwipeHelper = new SwipeHelper(SwipeHelper.X, this, densityScale,
 				pagingTouchSlop, context);
+	}
+
+	public void setWindow(Window window) {
+		mWindow = window;
 	}
 
 	@Override
@@ -68,17 +82,22 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 
 	@Override
 	public View getChildAtPosition(MotionEvent ev) {
-		final int count = getChildCount() - getFooterViewsCount(); // Skip the footer views.
+		// Skip the footer views.
+		final int count = getChildCount() - getFooterViewsCount();
+
 		int touchY = (int) ev.getY();
 		int childIdx = getHeaderViewsCount(); // Skip the header views.
-		View slidingChild;
+
 		for (; childIdx < count; childIdx++) {
-			slidingChild = getChildAt(childIdx);
+			View slidingChild = getChildAt(childIdx);
 			if (touchY >= slidingChild.getTop()
 					&& touchY <= slidingChild.getBottom()) {
+				mChildIndex = childIdx;
 				return slidingChild;
 			}
 		}
+
+		mChildIndex = -1;
 		return null;
 	}
 
@@ -99,7 +118,7 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 	@Override
 	public boolean canChildBeDismissed(View v) {
 		if (mCallBack != null) {
-			return mCallBack.canDismissed(v);
+			return mCallBack.canDismissed(v, mChildIndex);
 		}
 		return true;
 	}
@@ -119,8 +138,12 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 
 	@Override
 	public void onChildDismissed(View v) {
-		if (mCallBack != null) {
-			mCallBack.onChildDismissed(v);
+		mIsToDismiss = true;
+
+		try {
+			showUndoWindow();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -133,5 +156,68 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 
 	@Override
 	public void onDragCancelled(View v) {
+	}
+
+	// -----------------------------------------------------------------------------
+	private void showUndoWindow() throws Exception {
+		if (mWindow == null) {
+			throw new Exception("Window is NOT set.");
+		}
+
+		LayoutInflater factory = LayoutInflater.from(mContext);
+		View view = factory.inflate(R.layout.undo_delete, null);
+
+		mUndoWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT, 100,
+				true);
+		mUndoWindow.setOutsideTouchable(true);
+		mUndoWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+			@Override
+			public void onDismiss() {
+				dismiss();
+			}
+		});
+		mUndoWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+		view.findViewById(R.id.action_button).setOnClickListener(
+				new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						undoDismiss();
+					}
+				});
+
+		Rect rect = new Rect();
+		mWindow.getDecorView().getWindowVisibleDisplayFrame(rect);
+		mUndoWindow.showAtLocation(this, Gravity.CENTER_HORIZONTAL
+				| Gravity.TOP, 0, rect.top + getTop() + getHeight()
+				- mUndoWindow.getHeight());
+
+	}
+
+	private void undoDismiss() {
+		mIsToDismiss = false;
+		mSwipeHelper.snapChild();
+
+		mUndoWindow.dismiss();
+	}
+
+	private void dismiss() {
+		if (mIsToDismiss && mCallBack != null) {
+			invalidateNextItem();
+			mCallBack.onChildDismissed(mSwipeHelper.getCurrentView(),
+					mChildIndex);
+		}
+	}
+
+	private void invalidateNextItem() {
+		mSwipeHelper.snapChild();
+
+		int index = mChildIndex + 1;
+		if (index >= getChildCount()) {
+			return;
+		}
+
+		View view = getChildAt(index);
+		// SwipeHelper.invalidateGlobalRegion(view); // XXX It doesn't work!!!
 	}
 }
