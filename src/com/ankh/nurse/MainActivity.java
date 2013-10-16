@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,14 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +33,7 @@ public class MainActivity extends Activity {
 
 	private ArrayList<ArrayList<StatusItem>> mData = null;
 	private PersonalDailyInformationAdapter mAdapter;
-	private ListView mDateStatusList;
+	private SwipeListView mDateStatusList;
 
 	private PersonalDailyInformationManager mManager = new PersonalDailyInformationManager();
 
@@ -51,7 +45,7 @@ public class MainActivity extends Activity {
 		initData();
 
 		mAdapter = new PersonalDailyInformationAdapter(this, mData);
-		mDateStatusList = (ListView) findViewById(R.id.list);
+		mDateStatusList = (SwipeListView) findViewById(R.id.list);
 		mDateStatusList.setAdapter(mAdapter);
 
 		setData();
@@ -125,7 +119,8 @@ public class MainActivity extends Activity {
 			infor.whichDay = c2.getTime();
 
 			Bundle bundle = new Bundle();
-			bundle.putSerializable(PersonalDailyInformationActivity.MESSAGE, infor);
+			bundle.putSerializable(PersonalDailyInformationActivity.MESSAGE,
+					infor);
 			intent.putExtras(bundle);
 		}
 
@@ -375,4 +370,5 @@ public class MainActivity extends Activity {
 		int id;
 		PersonalDailyInformation infor;
 	}
+
 }

@@ -51,7 +51,7 @@ public class PersonalDailyInformationActivity extends Activity implements
 	private LevelAdapter mLevelAdapter;
 
 	private PersonalDailyDetailInformationAdapter mAdapter;
-	private ListView mDetailList;
+	private SwipeListView mDetailList;
 
 	private static final int SHOW_CHOOSE_DATE_DIALOG = 0;
 	private static final int DATE_DIALOG_ID = 1;
@@ -67,7 +67,7 @@ public class PersonalDailyInformationActivity extends Activity implements
 
 		load();
 
-		mDetailList = (ListView) findViewById(R.id.list);
+		mDetailList = (SwipeListView) findViewById(R.id.list);
 		mDetailList.addHeaderView(getHeaderView(), null, false);
 
 		mAdapter = new PersonalDailyDetailInformationAdapter(this,
