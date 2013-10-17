@@ -1,5 +1,8 @@
 package com.ankh.nurse;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -75,9 +78,36 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 				| super.onInterceptTouchEvent(ev);
 	}
 
+	private boolean mIsCancelClick = false;
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		return mSwipeHelper.onTouchEvent(ev) | super.onTouchEvent(ev);
+		boolean flag = mSwipeHelper.onTouchEvent(ev);
+
+		// Cancel a click action immediately.
+		if (flag && MotionEvent.ACTION_UP == ev.getAction()) {
+			mIsCancelClick = true;
+			final Timer timer = new Timer(true);
+			TimerTask task = new TimerTask() {
+				public void run() {
+					mIsCancelClick = false;
+					timer.cancel();
+				}
+			};
+
+			timer.schedule(task, 100);
+			return true;
+		}
+
+		return super.onTouchEvent(ev);
+	}
+
+	@Override
+	public boolean performItemClick(View view, int position, long id) {
+		if (mIsCancelClick) {
+			Log.v(TAG, "Click action is canceled.");
+			return true;
+		}
+		return super.performItemClick(view, position, id);
 	}
 
 	@Override
@@ -167,7 +197,7 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 		LayoutInflater factory = LayoutInflater.from(mContext);
 		View view = factory.inflate(R.layout.undo_delete, null);
 
-		mUndoWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT, 100,
+		mUndoWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT, 80,
 				true);
 		mUndoWindow.setOutsideTouchable(true);
 		mUndoWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
@@ -189,8 +219,7 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 		Rect rect = new Rect();
 		mWindow.getDecorView().getWindowVisibleDisplayFrame(rect);
 		mUndoWindow.showAtLocation(this, Gravity.CENTER_HORIZONTAL
-				| Gravity.TOP, 0, rect.top + getTop() + getHeight()
-				- mUndoWindow.getHeight());
+				| Gravity.TOP, 0, rect.top + getTop() + getHeight());
 
 	}
 

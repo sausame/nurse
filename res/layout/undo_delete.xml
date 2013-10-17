@@ -1,5 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="#b0000000"
+	android:background="@drawable/panel_undo_holo"
     android:orientation="horizontal"
     android:gravity="center_vertical">
 
