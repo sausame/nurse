@@ -31,12 +31,20 @@ public class PersonalDailyInformation implements Serializable {
 		level = 0;
 	}
 
+	public boolean isYesterday(Date whichDay) {
+		return isSameDay(getDay(whichDay, -1));
+	}
+
 	public boolean isSameDay(Date whichDay) {
+		return isSameDay(this.whichDay, whichDay);
+	}
+
+	public static boolean isSameDay(Date day1, Date day2) {
 		Calendar c1 = new GregorianCalendar();
 		Calendar c2 = new GregorianCalendar();
 
-		c1.setTime(this.whichDay);
-		c2.setTime(whichDay);
+		c1.setTime(day1);
+		c2.setTime(day2);
 
 		if (c1.get(Calendar.YEAR) != c2.get(Calendar.YEAR)) {
 			return false;
@@ -267,8 +275,12 @@ public class PersonalDailyInformation implements Serializable {
 	}
 
 	private static Date getDay(int diff) {
+		return getDay(new Date(), diff);
+	}
+
+	private static Date getDay(Date date, int diff) {
 		Calendar calendar = new GregorianCalendar();
-		calendar.setTime(new Date());
+		calendar.setTime(date);
 		calendar.add(Calendar.DATE, diff);
 
 		return calendar.getTime();
