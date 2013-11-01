@@ -4,20 +4,23 @@
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants" >
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textColor="@color/list_main"
-        android:textSize="@dimen/list_main_textsize"
-		android:visibility="invisible" />
-    
     <LinearLayout
         android:id="@+id/layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal" >
-    </LinearLayout>
+        android:layout_alignParentLeft="true"
+        android:orientation="horizontal" />
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="@dimen/setting_margin"
+        android:text="2011-08-19"
+        android:textColor="@color/list_secondray"
+        android:textSize="@dimen/list_secondray_textsize"
+        android:visibility="visible" />
 
 </RelativeLayout>
-

@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">nurse</string>
+    <string name="history">History</string>
     <string name="action_add">Add</string>
     <string name="action_delete">Delete</string>
     <string name="action_cancel">Cancel</string>

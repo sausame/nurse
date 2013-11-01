@@ -196,7 +196,7 @@ public class HistoryActivity extends Activity {
 			setData();
 		}
 	}
-	
+
 	private boolean isCanBeDismissed(int position) {
 		return mData.get(position).size() > 0;
 	}
@@ -279,7 +279,7 @@ public class HistoryActivity extends Activity {
 		private final static int MAX_IN_AN_ITEM = 3;
 
 		@Override
-		public View getView(int position, View view, ViewGroup arg2) {
+		public View getView(int position, View view, ViewGroup parent) {
 			if (position < 0 || position >= getCount()) {
 				return null;
 			}
@@ -293,20 +293,19 @@ public class HistoryActivity extends Activity {
 
 				viewGroup.mStatusLayout = (LinearLayout) view
 						.findViewById(R.id.layout);
+				
+				viewGroup.mDate = (TextView) view.findViewById(R.id.date);
 
 				for (int i = 0; i < MAX_IN_AN_ITEM; i++) {
 					OneStatusViewGroup object = new OneStatusViewGroup();
-					View viewOneStatus = factory.inflate(
-							R.layout.item_status,
+					View viewOneStatus = factory.inflate(R.layout.item_status,
 							viewGroup.mStatusLayout, false);
-				
+
 					object.mLayout = (RelativeLayout) viewOneStatus
-							.findViewById(R.id.one_status_layout);				
+							.findViewById(R.id.one_status_layout);
 
 					object.mName = (TextView) viewOneStatus
 							.findViewById(R.id.name);
-					object.mDate = (TextView) viewOneStatus
-							.findViewById(R.id.date);
 					object.mButton = (Button) viewOneStatus
 							.findViewById(R.id.button);
 
@@ -332,8 +331,10 @@ public class HistoryActivity extends Activity {
 
 			int num = item.size();
 			if (num >= MAX_IN_AN_ITEM) {
-				num = MAX_IN_AN_ITEM - 1;
+				num = MAX_IN_AN_ITEM;
 			}
+
+			viewGroup.mDate.setText(getDay(item.date));
 
 			PersonalDailyInformation infor;
 			OneStatusViewGroup object;
@@ -345,12 +346,14 @@ public class HistoryActivity extends Activity {
 				object = viewGroup.mStatusViewGroupList.get(offset);
 
 				infor = item.get(offset).infor;
-				
+
 				object.mName.setText(infor.name);
+				object.mName.setVisibility(View.VISIBLE);
 
 				object.mButton.setVisibility(View.VISIBLE);
 				object.mButton
 						.setBackgroundResource(getBackgroundResource(infor.level));
+				object.mButton.setWidth(getButtonLength(infor.level));
 
 				object.mButton.setOnClickListener(new OnClickListener() {
 					@Override
@@ -358,13 +361,6 @@ public class HistoryActivity extends Activity {
 						onClickTextButton(id, position, offset);
 					}
 				});
-				
-				object.mDate.setText(getDay(infor.whichDay));
-			}
-
-			for (; i < MAX_IN_AN_ITEM; i++) {
-				object = viewGroup.mStatusViewGroupList.get(i);
-				object.mLayout.setVisibility(View.GONE);
 			}
 		}
 
@@ -372,8 +368,9 @@ public class HistoryActivity extends Activity {
 			return mResIDGroupOfBackground[level % 5];
 		}
 
-		private void onClickImageButton(final int position) {
-			onActionAdd(position);
+		private int getButtonLength(int level) {
+			return (int) (getResources().getDimension(
+					R.dimen.status_level_step_width) * (level + 1));
 		}
 
 		private void onClickTextButton(final int id, final int position,
@@ -386,11 +383,11 @@ public class HistoryActivity extends Activity {
 			public RelativeLayout mLayout;
 			public TextView mName;
 			public Button mButton;
-			public TextView mDate;
 		}
 
 		private class DateStatusViewGroup {
 			public LinearLayout mStatusLayout;
+			public TextView mDate;
 			public ArrayList<OneStatusViewGroup> mStatusViewGroupList = new ArrayList<OneStatusViewGroup>();
 		}
 

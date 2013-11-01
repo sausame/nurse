@@ -23,6 +23,7 @@
     <dimen name="listbar_layout_height">50dp</dimen>
     
     <dimen name="listbar_layout_1_status_width">150dp</dimen>
+    <dimen name="status_level_step_width">15dp</dimen>
 
     <dimen name="user_setting_layout_heigth">60dp</dimen>
     <dimen name="user_setting_textview_width">70dp</dimen>
