@@ -293,7 +293,7 @@ public class HistoryActivity extends Activity {
 
 				viewGroup.mStatusLayout = (LinearLayout) view
 						.findViewById(R.id.layout);
-				
+
 				viewGroup.mDate = (TextView) view.findViewById(R.id.date);
 
 				for (int i = 0; i < MAX_IN_AN_ITEM; i++) {
@@ -353,6 +353,9 @@ public class HistoryActivity extends Activity {
 				object.mButton.setVisibility(View.VISIBLE);
 				object.mButton
 						.setBackgroundResource(getBackgroundResource(infor.level));
+				
+				// XXX Android error, it needs to be set twice.
+				object.mButton.getLayoutParams().width = getButtonLength(infor.level);
 				object.mButton.setWidth(getButtonLength(infor.level));
 
 				object.mButton.setOnClickListener(new OnClickListener() {
