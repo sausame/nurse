@@ -359,13 +359,15 @@ public class HistoryActivity extends Activity implements OnItemClickListener {
 
 				// XXX Android error, it needs to be set twice.
 				object.mLevel.getLayoutParams().width = getButtonLength(infor.level);
+				object.mLevel.requestLayout();
+				object.mLevel.invalidate();
 				// object.mLevel.setWidth(getButtonLength(infor.level));
-				/*
-				 * object.mLevel.setOnClickListener(new OnClickListener() {
-				 * 
-				 * @Override public void onClick(View v) { onClickTextButton(id,
-				 * position, offset); } });
-				 */
+				object.mLayout.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						onClickLayout(id, position, offset);
+					}
+				});
 			}
 		}
 
@@ -378,7 +380,7 @@ public class HistoryActivity extends Activity implements OnItemClickListener {
 					R.dimen.status_level_step_width) * (level + 1));
 		}
 
-		private void onClickTextButton(final int id, final int position,
+		private void onClickLayout(final int id, final int position,
 				final int offset) {
 			onActionModify(id, position, offset);
 		}
