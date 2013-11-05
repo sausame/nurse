@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.ankh.nurse.DailyInforRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/one_status_layout"
+    android:focusable="false"
+    android:background="@drawable/list_selector"
     android:layout_width="@dimen/listbar_layout_1_status_width"
     android:layout_height="@dimen/listbar_layout_height" >
 
@@ -22,13 +24,11 @@
         android:layout_toRightOf="@+id/name"
         android:background="?android:attr/listDivider" />
    
-    <Button
-        android:id="@+id/button"
+    <View
+        android:id="@+id/level"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_toRightOf="@+id/divider"
-        android:focusable="false"
-        android:singleLine="true"
         android:visibility="gone" />
 
-</RelativeLayout>
+</com.ankh.nurse.DailyInforRelativeLayout>

@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -24,8 +25,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
-public class HistoryActivity extends Activity {
+public class HistoryActivity extends Activity implements OnItemClickListener {
 	private static final String TAG = "HistoryActivity";
 
 	private static final int ADD = 0;
@@ -48,6 +50,7 @@ public class HistoryActivity extends Activity {
 		mAdapter = new PersonalDailyInformationAdapter(this, mData);
 		mDateStatusList = (SwipeListView) findViewById(R.id.list);
 		mDateStatusList.setAdapter(mAdapter);
+		mDateStatusList.setOnItemClickListener(this);
 		mDateStatusList.setWindow(getWindow());
 		mDateStatusList
 				.setListViewCallBack(new SwipeListView.ListViewCallBack() {
@@ -306,8 +309,8 @@ public class HistoryActivity extends Activity {
 
 					object.mName = (TextView) viewOneStatus
 							.findViewById(R.id.name);
-					object.mButton = (Button) viewOneStatus
-							.findViewById(R.id.button);
+					object.mLevel = (View) viewOneStatus
+							.findViewById(R.id.level);
 
 					viewGroup.mStatusViewGroupList.add(object);
 
@@ -350,20 +353,19 @@ public class HistoryActivity extends Activity {
 				object.mName.setText(infor.name);
 				object.mName.setVisibility(View.VISIBLE);
 
-				object.mButton.setVisibility(View.VISIBLE);
-				object.mButton
+				object.mLevel.setVisibility(View.VISIBLE);
+				object.mLevel
 						.setBackgroundResource(getBackgroundResource(infor.level));
-				
-				// XXX Android error, it needs to be set twice.
-				object.mButton.getLayoutParams().width = getButtonLength(infor.level);
-				object.mButton.setWidth(getButtonLength(infor.level));
 
-				object.mButton.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						onClickTextButton(id, position, offset);
-					}
-				});
+				// XXX Android error, it needs to be set twice.
+				object.mLevel.getLayoutParams().width = getButtonLength(infor.level);
+				// object.mLevel.setWidth(getButtonLength(infor.level));
+				/*
+				 * object.mLevel.setOnClickListener(new OnClickListener() {
+				 * 
+				 * @Override public void onClick(View v) { onClickTextButton(id,
+				 * position, offset); } });
+				 */
 			}
 		}
 
@@ -385,7 +387,7 @@ public class HistoryActivity extends Activity {
 		private class OneStatusViewGroup {
 			public RelativeLayout mLayout;
 			public TextView mName;
-			public Button mButton;
+			public View mLevel;
 		}
 
 		private class DateStatusViewGroup {
@@ -441,6 +443,11 @@ public class HistoryActivity extends Activity {
 
 		Date date;
 		ArrayList<StatusItem> list;
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> listView, View view, int position,
+			long id) {
 	}
 
 }
