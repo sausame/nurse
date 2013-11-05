@@ -3,6 +3,7 @@ package com.ankh.nurse;
 public final class Log {
 
 	private static Log mInstance = null;
+	private final static String TAG = "LooooooG";
 
 	public static synchronized Log getInstance(){
 		if (mInstance == null) {
@@ -12,10 +13,14 @@ public final class Log {
 		return mInstance;
 	}
 
-	public static void l() {
-		android.util.Log.v("_________", getCodeAddress());
+	public static void v() {
+		android.util.Log.v(TAG, getCodeAddress());
 	}
-
+	
+	public static void v(String msg) {
+		v(TAG, msg);
+	}
+	
 	private static String getCodeAddress() {
 		StackTraceElement[] sts = Thread.currentThread().getStackTrace();
 
