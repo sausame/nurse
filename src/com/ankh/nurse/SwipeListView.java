@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -25,6 +26,11 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 	private static final String TAG = SwipeListView.class.getSimpleName();
 
 	public interface ListViewCallBack {
+
+		public void dismiss(int position);
+
+		public void undoDismiss();
+
 		public void onChildDismissed(View v, int position);
 
 		public void showCannotSwipe();
@@ -170,6 +176,11 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 	public void onChildDismissed(View v) {
 		mIsToDismiss = true;
 
+		if (mCallBack != null) {
+			mCallBack.onChildDismissed(mSwipeHelper.getCurrentView(),
+					mChildIndex);
+		}
+
 		try {
 			showUndoWindow();
 		} catch (Exception e) {
@@ -225,28 +236,18 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 
 	private void undoDismiss() {
 		mIsToDismiss = false;
-		mSwipeHelper.snapChild();
-
 		mUndoWindow.dismiss();
+
+		if (mCallBack != null) {
+			mCallBack.undoDismiss();
+		}
 	}
 
 	private void dismiss() {
 		if (mIsToDismiss && mCallBack != null) {
-			invalidateNextItem();
-			mCallBack.onChildDismissed(mSwipeHelper.getCurrentView(),
-					mChildIndex);
+			mCallBack.dismiss(mChildIndex);
 		}
 	}
 
-	private void invalidateNextItem() {
-		mSwipeHelper.snapChild();
-
-		int index = mChildIndex + 1;
-		if (index >= getChildCount()) {
-			return;
-		}
-
-		View view = getChildAt(index);
-		// SwipeHelper.invalidateGlobalRegion(view); // XXX It doesn't work!!!
-	}
 }
+

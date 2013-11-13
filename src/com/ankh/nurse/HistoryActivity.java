@@ -60,12 +60,22 @@ public class HistoryActivity extends Activity implements OnItemClickListener {
 
 					@Override
 					public void onChildDismissed(View v, int position) {
-						deleteRaw(position);
+						deleteListView(position);
 					}
 
 					@Override
 					public boolean canDismissed(View v, int position) {
 						return isCanBeDismissed(position);
+					}
+
+					@Override
+					public void undoDismiss() {
+						setData();
+					}
+
+					@Override
+					public void dismiss(int position) {
+						deleteRaw(position);
 					}
 				});
 
@@ -184,9 +194,19 @@ public class HistoryActivity extends Activity implements OnItemClickListener {
 	private void onActionSettings() {
 	}
 
+	private DailyStatusItem mDeletedStatusItem = null;
+
+	private void deleteListView(int position) {
+		position -= mDateStatusList.getHeaderViewsCount();
+
+		mDeletedStatusItem = mData.get(position);
+		mData.remove(position);
+
+		mAdapter.notifyDataSetChanged();
+	}
+
 	private void deleteRaw(int position) {
-		DailyStatusItem item = mData.get(position
-				- mDateStatusList.getHeaderViewsCount());
+		DailyStatusItem item = mDeletedStatusItem;
 
 		int num = item.size();
 		if (num > 0) {

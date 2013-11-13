@@ -63,6 +63,15 @@ public class MainActivity extends Activity {
 					public boolean canDismissed(View v, int position) {
 						return true;
 					}
+
+					@Override
+					public void undoDismiss() {
+						
+					}
+
+					@Override
+					public void dismiss(int position) {
+					}
 				});
 
 		setData();

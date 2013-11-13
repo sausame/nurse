@@ -91,6 +91,16 @@ public class PersonalDailyInformationActivity extends Activity implements
 					public boolean canDismissed(View v, int position) {
 						return true;
 					}
+
+					@Override
+					public void undoDismiss() {
+						
+					}
+
+					@Override
+					public void dismiss(int position) {
+						
+					}
 				});
 
 	}
