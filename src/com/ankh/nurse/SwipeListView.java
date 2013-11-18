@@ -128,7 +128,7 @@ public class SwipeListView extends ListView implements SwipeHelper.Callback {
 			View slidingChild = getChildAt(childIdx);
 			if (touchY >= slidingChild.getTop()
 					&& touchY <= slidingChild.getBottom()) {
-				mChildIndex = childIdx;
+				mChildIndex = getFirstVisiblePosition() + childIdx;
 				return slidingChild;
 			}
 		}
