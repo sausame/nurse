@@ -321,6 +321,10 @@ public class SwipeHelper {
 			public void onAnimationEnd(Animator animation) {
 				mCallback.onChildDismissed(view);
 				animView.setLayerType(View.LAYER_TYPE_NONE, null);
+
+				// XXX: Should I add it?
+				view.setAlpha(1.0f);
+				view.setTranslationX(0);
 			}
 		});
 		anim.addUpdateListener(new AnimatorUpdateListener() {
