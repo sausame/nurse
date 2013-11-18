@@ -76,32 +76,30 @@ public class PersonalDailyInformationActivity extends Activity implements
 		mDetailList.setOnItemClickListener(this);
 
 		mDetailList.setWindow(getWindow());
-		mDetailList
-				.setListViewCallBack(new SwipeListView.ListViewCallBack() {
-					@Override
-					public void showCannotSwipe() {
-					}
+		mDetailList.setListViewCallBack(new SwipeListView.ListViewCallBack() {
+			@Override
+			public void showCannotSwipe() {
+			}
 
-					@Override
-					public void onChildDismissed(View v, int position) {
-						deleteDetail(position);
-					}
+			@Override
+			public void onChildDismissed(View v, int position) {
+				deleteDetail(position);
+			}
 
-					@Override
-					public boolean canDismissed(View v, int position) {
-						return true;
-					}
+			@Override
+			public boolean canDismissed(View v, int position) {
+				return true;
+			}
 
-					@Override
-					public void undoDismiss() {
-						
-					}
+			@Override
+			public void undoDismiss() {
+				undoDeleteDetail();
+			}
 
-					@Override
-					public void dismiss(int position) {
-						
-					}
-				});
+			@Override
+			public void dismiss(int position) {
+			}
+		});
 
 	}
 
@@ -218,9 +216,19 @@ public class PersonalDailyInformationActivity extends Activity implements
 		startActivityForResult(intent, position);
 	}
 
+	private PersonalDailyInformation.DetailInformation mDeletedDetailInfor = new PersonalDailyInformation.DetailInformation();
+
 	private void deleteDetail(int position) {
 		position -= mDetailList.getHeaderViewsCount();
+
+		mDeletedDetailInfor.copy(mPersonalDailyInformation.getDetail(position));
 		mPersonalDailyInformation.delDetail(position);
+
+		mAdapter.notifyDataSetChanged();
+	}
+
+	private void undoDeleteDetail() {
+		mPersonalDailyInformation.addDetail(mDeletedDetailInfor);
 
 		mAdapter.notifyDataSetChanged();
 	}
