@@ -377,17 +377,26 @@ public class HistoryActivity extends Activity implements OnItemClickListener {
 				object.mLevel
 						.setBackgroundResource(getBackgroundResource(infor.level));
 
-				// XXX Android error, it needs to be set twice.
+				// XXX Android error. If it's an Image or Text, it needs to be set twice.
 				object.mLevel.getLayoutParams().width = getButtonLength(infor.level);
+				// object.mLevel.setWidth(getButtonLength(infor.level));
+
 				object.mLevel.requestLayout();
 				object.mLevel.invalidate();
-				// object.mLevel.setWidth(getButtonLength(infor.level));
+
 				object.mLayout.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View view) {
 						onClickLayout(id, position, offset);
 					}
 				});
+			}
+
+			for (; i < MAX_IN_AN_ITEM; i++) {
+				object = viewGroup.mStatusViewGroupList.get(i);
+
+				object.mName.setVisibility(View.INVISIBLE);
+				object.mLevel.setVisibility(View.INVISIBLE);
 			}
 		}
 
