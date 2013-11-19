@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -40,7 +42,14 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_personal_daily_information_detail);
+
+		FadingActionBarHelper helper = new FadingActionBarHelper()
+				.actionBarBackground(R.drawable.ab_background_light)
+				.contentLayout(
+						R.layout.activity_personal_daily_information_detail);
+
+		setContentView(helper.createView(this));
+		helper.initActionBar(this);
 
 		mEditText = (EditText) findViewById(R.id.detail);
 		mImageButton = (ImageButton) findViewById(R.id.image);
@@ -135,7 +144,8 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 
 	private void onImageButtonClicked() {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setDataAndType(Uri.fromFile(new File(mInformation.attachmentPath)), "image/*");
+		intent.setDataAndType(
+				Uri.fromFile(new File(mInformation.attachmentPath)), "image/*");
 		startActivity(intent);
 	}
 
@@ -182,34 +192,37 @@ public class PersonalDailyInformationDetailActivity extends Activity {
 		setViews();
 	}
 
-    private String getFilePath(Uri uri) {
+	private String getFilePath(Uri uri) {
 		Log.v(TAG, uri.toString());
 
 		String path = null;
 		String name = null;
 
-        String scheme = uri.getScheme();
-        if (scheme.equals("content")) {
-            String[] fields = { MediaStore.MediaColumns.DATA,
-                              MediaStore.MediaColumns.TITLE};
-            Cursor cursor = this.getContentResolver().query(uri,fields,null,null,null);
-            if (cursor != null) {
-                int dataIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-                int nameIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.TITLE);
-                cursor.moveToFirst();
-                path = cursor.getString(dataIndex);
-                name = cursor.getString(nameIndex);
-                cursor.close();
-            } else {
+		String scheme = uri.getScheme();
+		if (scheme.equals("content")) {
+			String[] fields = { MediaStore.MediaColumns.DATA,
+					MediaStore.MediaColumns.TITLE };
+			Cursor cursor = this.getContentResolver().query(uri, fields, null,
+					null, null);
+			if (cursor != null) {
+				int dataIndex = cursor
+						.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+				int nameIndex = cursor
+						.getColumnIndexOrThrow(MediaStore.MediaColumns.TITLE);
+				cursor.moveToFirst();
+				path = cursor.getString(dataIndex);
+				name = cursor.getString(nameIndex);
+				cursor.close();
+			} else {
 				Log.e(TAG, "Can't find filename of " + uri);
 			}
-        } else if (uri.getScheme().equals("file")) {
-            path = uri.getPath();
-            name = path.substring(path.lastIndexOf('/') + 1);
-        }
+		} else if (uri.getScheme().equals("file")) {
+			path = uri.getPath();
+			name = path.substring(path.lastIndexOf('/') + 1);
+		}
 
 		return path;
-    }
+	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
