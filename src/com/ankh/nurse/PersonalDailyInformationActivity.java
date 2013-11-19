@@ -200,7 +200,6 @@ public class PersonalDailyInformationActivity extends Activity implements
 	}
 
 	private void onDetailClicked(int position) {
-		Log.i(TAG, "Position: " + position);
 		Intent intent = new Intent(this,
 				PersonalDailyInformationDetailActivity.class);
 
@@ -228,7 +227,9 @@ public class PersonalDailyInformationActivity extends Activity implements
 	}
 
 	private void undoDeleteDetail() {
-		mPersonalDailyInformation.addDetail(mDeletedDetailInfor);
+		mPersonalDailyInformation
+				.addDetail(new PersonalDailyInformation.DetailInformation(
+						mDeletedDetailInfor));
 
 		mAdapter.notifyDataSetChanged();
 	}

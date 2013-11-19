@@ -126,11 +126,9 @@ public class PersonalDailyInformation implements Serializable {
 			attachmentPath = "";
 		}
 
-		/*
 		public DetailInformation(DetailInformation infor) {
 			this.copy(infor);
 		}
-		*/
 
 		public static DetailInformation parseDetailInformation(JSONObject object) {
 			try {
@@ -162,6 +160,14 @@ public class PersonalDailyInformation implements Serializable {
 				e.printStackTrace();
 				return null;
 			}
+		}
+
+		public String toString() {
+			String str = "";
+			str += "Description: " + description + "\n";
+			str += "AttachmentPath: " + attachmentPath + "\n";
+
+			return str;
 		}
 	}
 
