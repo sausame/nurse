@@ -230,6 +230,7 @@ public class HistoryActivity extends Activity implements OnItemClickListener {
 	}
 
 	private boolean isCanBeDismissed(int position) {
+		position -= mDateStatusList.getHeaderViewsCount();
 		return mData.get(position).size() > 0;
 	}
 
