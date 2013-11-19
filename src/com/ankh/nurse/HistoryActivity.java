@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
@@ -43,12 +45,19 @@ public class HistoryActivity extends Activity implements OnItemClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_history);
+
+		FadingActionBarHelper helper = new FadingActionBarHelper()
+				.actionBarBackground(R.drawable.ab_background_light)
+				.headerLayout(R.layout.header)
+				.contentLayout(R.layout.activity_history).parallax(true);
+		
+		setContentView(helper.createView(this));
+		helper.initActionBar(this);
 
 		initData();
 
 		mAdapter = new PersonalDailyInformationAdapter(this, mData);
-		mDateStatusList = (SwipeListView) findViewById(R.id.list);
+		mDateStatusList = (SwipeListView) findViewById(android.R.id.list);
 		mDateStatusList.setAdapter(mAdapter);
 		mDateStatusList.setOnItemClickListener(this);
 		mDateStatusList.setWindow(getWindow());
@@ -377,7 +386,8 @@ public class HistoryActivity extends Activity implements OnItemClickListener {
 				object.mLevel
 						.setBackgroundResource(getBackgroundResource(infor.level));
 
-				// XXX Android error. If it's an Image or Text, it needs to be set twice.
+				// XXX Android error. If it's an Image or Text, it needs to be
+				// set twice.
 				object.mLevel.getLayoutParams().width = getButtonLength(infor.level);
 				// object.mLevel.setWidth(getButtonLength(infor.level));
 

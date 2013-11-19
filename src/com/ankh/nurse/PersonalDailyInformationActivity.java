@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
+
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -63,11 +65,18 @@ public class PersonalDailyInformationActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_personal_daily_information);
+
+		FadingActionBarHelper helper = new FadingActionBarHelper()
+				.actionBarBackground(R.drawable.ab_background_light)
+				.contentLayout(R.layout.activity_personal_daily_information)
+				.parallax(false);
+
+		setContentView(helper.createView(this));
+		helper.initActionBar(this);
 
 		load();
 
-		mDetailList = (SwipeListView) findViewById(R.id.list);
+		mDetailList = (SwipeListView) findViewById(android.R.id.list);
 		mDetailList.addHeaderView(getHeaderView(), null, false);
 
 		mAdapter = new PersonalDailyDetailInformationAdapter(this,
