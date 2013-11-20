@@ -18,6 +18,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.ankh.nurse.HistoryActivity"
+            android:icon="@drawable/ic_health_record"
+            android:theme="@style/AppTheme.TranslucentActionBar"
             android:label="@string/history" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
