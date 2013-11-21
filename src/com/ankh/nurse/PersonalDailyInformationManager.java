@@ -48,7 +48,7 @@ public class PersonalDailyInformationManager {
 	}
 
 	public void save() {
-		if (null == mJsonArray || 0 == mJsonArray.length()) {
+		if (null == mJsonArray) {
 			Log.e(TAG, "Nothing is needed to save.");
 			return;
 		}
@@ -62,6 +62,8 @@ public class PersonalDailyInformationManager {
 
 			osw.flush();
 			osw.close();
+			
+			Log.i(TAG, "Save " + mJsonArray.length() + " records to " + mPathname);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
